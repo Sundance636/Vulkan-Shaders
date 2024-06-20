@@ -1,0 +1,3 @@
+.vscode
+Src/*.o
+shaders/*.spv
