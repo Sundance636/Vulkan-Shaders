@@ -60,11 +60,16 @@ struct Vertex {
 };
 
 const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 };
 
+//for index buffer
+const std::vector<uint32_t> indices = {
+    0, 1, 2, 2, 3, 0
+};
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
@@ -111,6 +116,8 @@ class HelloTriangleApplication {
         VkCommandPool commandPool;
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
+        VkBuffer indexBuffer;
+        VkDeviceMemory indexBufferMemory;
         
 
         std::vector<VkCommandBuffer> commandBuffers;                
@@ -140,8 +147,11 @@ class HelloTriangleApplication {
         void createCommandBuffers();
         void createSyncObjects();
         void createVertexBuffer();
+        void createIndexBuffer();
         void recreateSwapChain();
         void setupDebugMessenger();
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);

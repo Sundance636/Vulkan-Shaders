@@ -1,3 +1,4 @@
 .vscode
 Src/*.o
 shaders/*.spv
+VulkanApp
