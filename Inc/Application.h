@@ -18,7 +18,7 @@ class Application {
         uint32_t winHEIGHT = 480;
         viewPort ApplicationWindow = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
         coreDevice appDevice = coreDevice(ApplicationWindow);
-        pipeline Pipeline = pipeline(appDevice,"vertexShaders","fragShaders",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
+        pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
 
     public:
         Application();
