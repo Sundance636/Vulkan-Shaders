@@ -17,6 +17,10 @@
 #include <glm/glm.hpp>
 #include <array>
 
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -94,6 +98,12 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
+struct UniformBufferObject {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class HelloTriangleApplication {
     private:
         GLFWwindow* window;
@@ -110,6 +120,7 @@ class HelloTriangleApplication {
         std::vector<VkFramebuffer> swapChainFramebuffers;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
+        VkDescriptorSetLayout descriptorSetLayout;
         VkPipelineLayout pipelineLayout;
         VkRenderPass renderPass;
         VkPipeline graphicsPipeline;
@@ -118,7 +129,9 @@ class HelloTriangleApplication {
         VkDeviceMemory vertexBufferMemory;
         VkBuffer indexBuffer;
         VkDeviceMemory indexBufferMemory;
-        
+        std::vector<VkBuffer> uniformBuffers;
+        std::vector<VkDeviceMemory> uniformBuffersMemory;
+        std::vector<void*> uniformBuffersMapped;
 
         std::vector<VkCommandBuffer> commandBuffers;                
         std::vector<VkSemaphore> imageAvailableSemaphores;
@@ -148,8 +161,11 @@ class HelloTriangleApplication {
         void createSyncObjects();
         void createVertexBuffer();
         void createIndexBuffer();
+        void createDescriptorSetLayout();
+        void createUniformBuffers();
         void recreateSwapChain();
         void setupDebugMessenger();
+        void updateUniformBuffer(uint32_t currentImage);
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
