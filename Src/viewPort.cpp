@@ -36,6 +36,15 @@ bool viewPort::shouldClose() {
     return glfwWindowShouldClose(window);
 }
 
+VkExtent2D viewPort::getExtent() {
+    VkExtent2D extent {};
+
+    extent.height = HEIGHT;
+    extent.width = WIDTH;
+    return extent;
+}
+
+
 void viewPort::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
     if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
         throw std::runtime_error("failed to create window surface!");

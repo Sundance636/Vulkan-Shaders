@@ -26,6 +26,7 @@ class viewPort {
             viewPort( u_int32_t Width, uint32_t Height, std::string name);
             ~viewPort();
             bool shouldClose();
+            VkExtent2D getExtent();
 
             void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 

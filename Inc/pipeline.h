@@ -6,12 +6,11 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include <assert>
+
 
 struct PipelineConfigInfo {
     VkViewport viewport;
     VkRect2D scissor;
-    VkPipelineViewportStateCreateInfo viewportInfo;
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     VkPipelineRasterizationStateCreateInfo rasterizationInfo;
     VkPipelineMultisampleStateCreateInfo multisampleInfo;

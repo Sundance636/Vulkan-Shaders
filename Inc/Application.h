@@ -3,10 +3,13 @@
 
 #include "viewPort.h"
 #include "pipeline.h"
+#include "swapChain.h"
 
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+
+#include <memory>
 
 class Application {
 
@@ -17,11 +20,27 @@ class Application {
         uint32_t winWIDTH = 640;
         uint32_t winHEIGHT = 480;
         viewPort ApplicationWindow = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
+
         coreDevice appDevice = coreDevice(ApplicationWindow);
-        pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
+        coreSwapChain SwapChain = coreSwapChain(appDevice, ApplicationWindow.getExtent());
+        std::unique_ptr<pipeline> Pipeline;
+        //pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
+        VkPipelineLayout pipelineLayout;
+        std::vector<VkCommandBuffer> commandBuffers;
+
+        void createPipelineLayout();
+        void createPipeline();
+        void createCommandBuffers();
+        void drawFrame();
+
 
     public:
         Application();
+        ~Application();
+
+        Application(const Application&) = delete;
+        Application &operator=(const Application&) = delete;
+        
 
         void run();
 
