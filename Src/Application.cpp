@@ -118,10 +118,11 @@ void Application::drawFrame() {
 }
 
 void Application::loadModels() {
+    //vertex position, then colotr, which is thne interpolated
     std::vector<Model::Vertex> vertices {
-        {{0.0f, -0.5f}},
-        {{0.5f, 0.5f}},
-        {{-0.5f, 0.5f}}
+        {{0.0f, -0.5f},{1.0f,0.0f,0.0f}},
+        {{0.5f, 0.5f},{0.0f,1.0f,0.0f}},
+        {{-0.5f, 0.5f},{0.0f,0.0f,1.0f}}
     };
 
 
