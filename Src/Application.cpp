@@ -1,6 +1,7 @@
 #include "Application.h"
 
 Application::Application() {
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -58,7 +59,7 @@ void Application::createCommandBuffers() {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 
-    for( int i = 0; i < commandBuffers.size(); i++) {
+    for( uint32_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -83,8 +84,11 @@ void Application::createCommandBuffers() {
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         Pipeline->bind(commandBuffers[i]);
-        //3,1,0,0 draws three vertices in one instance, 0,0 for no offsets
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+
+        appModel->bind(commandBuffers[i]);
+        appModel->draw(commandBuffers[i]);
+        
+
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -111,4 +115,15 @@ void Application::drawFrame() {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
+}
+
+void Application::loadModels() {
+    std::vector<Model::Vertex> vertices {
+        {{0.0f, -0.5f}},
+        {{0.5f, 0.5f}},
+        {{-0.5f, 0.5f}}
+    };
+
+
+    appModel = std::make_unique<Model>(appDevice, vertices);
 }

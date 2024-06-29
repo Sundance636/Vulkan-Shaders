@@ -4,6 +4,7 @@
 #include "viewPort.h"
 #include "pipeline.h"
 #include "swapChain.h"
+#include "model.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -27,11 +28,13 @@ class Application {
         //pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
+        std::unique_ptr<Model> appModel;
 
         void createPipelineLayout();
         void createPipeline();
         void createCommandBuffers();
         void drawFrame();
+        void loadModels();
 
 
     public:

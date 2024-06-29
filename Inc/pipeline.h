@@ -2,6 +2,7 @@
 #define __pipeline_h__
 
 #include "coreDevice.h"
+#include "model.h"
 
 #include <string>
 #include <fstream>
