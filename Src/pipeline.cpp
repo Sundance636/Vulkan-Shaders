@@ -17,6 +17,10 @@ pipeline::~pipeline() {
     vkDestroyPipeline(Device->device(), graphicsPipeline, nullptr);
 }
 
+void pipeline::bind(VkCommandBuffer commandBuffer) {
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+}
+
 
 void pipeline::createGraphicsPipeline(const std::string& vertShaderFile, const std::string& fragShaderFile, const PipelineConfigInfo& configInfo) {
     auto vertShaderCode = readFile(vertShaderFile);

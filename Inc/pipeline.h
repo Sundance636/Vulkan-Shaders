@@ -42,6 +42,8 @@ class pipeline {
         pipeline(coreDevice& device, const std::string& vertShaderFile, const std::string& fragShaderFile, const PipelineConfigInfo& configInfo);
         ~pipeline();
 
+        void bind(VkCommandBuffer commandBuffer);
+
         pipeline(const pipeline&) = delete;
         void operator=(const pipeline&) = delete;
 
