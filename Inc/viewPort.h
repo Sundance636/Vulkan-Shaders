@@ -13,13 +13,13 @@ class viewPort {
         GLFWwindow *window;
 
         //Window Specifications
-        uint32_t WIDTH = 640;
-        uint32_t HEIGHT = 480;
+        uint32_t WIDTH;
+        uint32_t HEIGHT;
         std::string windowName;
+        bool frameBufferResized = false;
 
-        //private Initialization functions
         void initWindow();
-
+        static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
 
         public:
             viewPort();
@@ -27,6 +27,8 @@ class viewPort {
             ~viewPort();
             bool shouldClose();
             VkExtent2D getExtent();
+            bool wasframeBufferResized();
+            void resetWindowResizedFlag();
 
             void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 

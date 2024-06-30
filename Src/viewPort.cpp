@@ -24,12 +24,12 @@ viewPort::~viewPort() {
 void viewPort::initWindow() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     window = glfwCreateWindow(WIDTH, HEIGHT, windowName.c_str(), nullptr, nullptr);
-    //glfwSetWindowUserPointer(window, this);
-
-    //glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
 bool viewPort::shouldClose() {
@@ -39,9 +39,31 @@ bool viewPort::shouldClose() {
 VkExtent2D viewPort::getExtent() {
     VkExtent2D extent {};
 
+    //int width;
+    //int height;
+    //glfwGetFramebufferSize(window, &width, &height);
+
+
     extent.height = HEIGHT;
     extent.width = WIDTH;
     return extent;
+}
+
+bool viewPort::wasframeBufferResized() {
+    return frameBufferResized;
+}
+
+void viewPort::resetWindowResizedFlag() {
+    frameBufferResized = false;
+}
+
+void viewPort::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
+    auto viewWindow = reinterpret_cast<viewPort*>(glfwGetWindowUserPointer(window));
+
+    viewWindow->frameBufferResized = true;
+    viewWindow->WIDTH = width;
+    viewWindow->HEIGHT = height;
+
 }
 
 
