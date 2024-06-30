@@ -1,13 +1,14 @@
 #include "Application.h"
 
 struct SimplePushConstantData {
+    glm::mat2 transform{1.0f};
     glm::vec2 offset;
     alignas(16) glm::vec3 color;
 };
 
 
 Application::Application() {
-    loadModels();
+    loadEntities();
     createPipelineLayout();
     recreateSwapChain();
     createCommandBuffers();
@@ -123,21 +124,7 @@ void Application::recordCommandBuffer(int imageIndex) {
     vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
     
     
-    Pipeline->bind(commandBuffers[imageIndex]);
-
-    appModel->bind(commandBuffers[imageIndex]);
-
-    //draws 4 times / 4 copies of object
-    for(int j = 0; j < 4; j++) {
-        SimplePushConstantData push{};
-        push.offset = {-0.5f + frame*0.002f, -0.4f + j * 0.25f };
-        push.color = {0.0f, 0.0f, 0.2f + 0.2f *j};
-
-        //record to cmdbuffer
-        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-        appModel->draw(commandBuffers[imageIndex]);
-
-    }
+    renderObjects(commandBuffers[imageIndex]);
 
     
 
@@ -145,6 +132,26 @@ void Application::recordCommandBuffer(int imageIndex) {
 
     if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS) {
         throw std::runtime_error("failed to record command buffer!");
+    }
+}
+
+void Application::renderObjects(VkCommandBuffer commandBuffer) {
+    Pipeline->bind(commandBuffer);
+    static float rotation = 0;
+    rotation += 0.1f;
+
+
+    for( auto &obj : entities) {
+        SimplePushConstantData push{};
+        obj.transform2d.rotation = rotation;
+        push.offset = obj.transform2d.translation;
+        push.color = obj.color;
+        push.transform = obj.transform2d.mat2();
+
+        //record to cmdbuffer
+        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+        obj.model->bind(commandBuffer);
+        obj.model->draw(commandBuffer);
     }
 }
 
@@ -203,7 +210,7 @@ void Application::recreateSwapChain() {
 
 }
 
-void Application::loadModels() {
+void Application::loadEntities() {
     //vertex position, then colotr, which is thne interpolated
     std::vector<Model::Vertex> vertices {
         {{0.0f, -0.5f},{1.0f,0.0f,0.0f}},
@@ -212,6 +219,14 @@ void Application::loadModels() {
     };
 
 
-    appModel = std::make_unique<Model>(appDevice, vertices);
-}
+    auto appModel = std::make_shared<Model>(appDevice, vertices);
+    Entity triangle = Entity::createEntity();
+    triangle.model = appModel;
+    triangle.color = {0.8f, 0.8f, 0.8f};
+    //triangle.transform2d.translation.x = 0.2f;
 
+
+    //triangle.transform2d.scale = {2.0f, 0.5f };
+
+    entities.push_back(std::move(triangle));
+}

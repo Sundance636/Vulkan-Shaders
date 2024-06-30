@@ -5,6 +5,7 @@
 #include "pipeline.h"
 #include "swapChain.h"
 #include "model.h"
+#include "entity.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -33,16 +34,17 @@ class Application {
         //pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
-        std::unique_ptr<Model> appModel;
+        std::vector<Entity> entities;
 
         void createPipelineLayout();
         void createPipeline();
         void createCommandBuffers();
         void freeCommanfBuffers();
         void drawFrame();
-        void loadModels();
+        void loadEntities();
         void recreateSwapChain();
         void recordCommandBuffer(int imageIndex);
+        void renderObjects(VkCommandBuffer commandBuffer);
 
     public:
         Application();
