@@ -9,13 +9,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
-
+#include <cassert>
 #include <memory>
+#include <iostream>
 
 class Application {
 
     private:
-
 
         //viewPort Specifications
         uint32_t winWIDTH = 640;
@@ -23,7 +23,7 @@ class Application {
         viewPort ApplicationWindow = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
 
         coreDevice appDevice = coreDevice(ApplicationWindow);
-        coreSwapChain SwapChain = coreSwapChain(appDevice, ApplicationWindow.getExtent());
+        std::unique_ptr<coreSwapChain> SwapChain;// = coreSwapChain(appDevice, ApplicationWindow.getExtent());
         std::unique_ptr<pipeline> Pipeline;
         //pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
         VkPipelineLayout pipelineLayout;
@@ -33,9 +33,11 @@ class Application {
         void createPipelineLayout();
         void createPipeline();
         void createCommandBuffers();
+        void freeCommanfBuffers();
         void drawFrame();
         void loadModels();
-
+        void recreateSwapChain();
+        void recordCommandBuffer(int imageIndex);
 
     public:
         Application();

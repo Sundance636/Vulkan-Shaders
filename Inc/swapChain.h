@@ -8,16 +8,19 @@
 // std lib headers
 #include <string>
 #include <vector>
+#include <memory>
 
 class coreSwapChain {
  public:
   static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
   coreSwapChain(coreDevice &deviceRef, VkExtent2D windowExtent);
+  coreSwapChain(coreDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<coreSwapChain> previous);
+
   ~coreSwapChain();
 
   coreSwapChain(const coreSwapChain &) = delete;
-  void operator=(const coreSwapChain &) = delete;
+  coreSwapChain &operator=(const coreSwapChain &) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
@@ -43,6 +46,7 @@ class coreSwapChain {
   void createRenderPass();
   void createFramebuffers();
   void createSyncObjects();
+  void init();
 
   // Helper functions
   VkSurfaceFormatKHR chooseSwapSurfaceFormat(
@@ -67,6 +71,7 @@ class coreSwapChain {
   VkExtent2D windowExtent;
 
   VkSwapchainKHR swapChain;
+  std::shared_ptr<coreSwapChain> oldSwapChain;
 
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;

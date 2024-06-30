@@ -32,7 +32,7 @@ class coreDevice {
 
       // Not copyable or movable
       coreDevice(const coreDevice &) = delete;
-      void operator=(const coreDevice &) = delete;
+      coreDevice &operator=(const coreDevice &) = delete;
       coreDevice(coreDevice &&) = delete;
       coreDevice &operator=(coreDevice &&) = delete;
 
