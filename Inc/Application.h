@@ -6,6 +6,11 @@
 #include "swapChain.h"
 #include "model.h"
 
+//forces radians across all platforms
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE //maybe change later
+#include <glm/glm.hpp>
+
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
