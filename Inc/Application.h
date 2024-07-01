@@ -2,10 +2,10 @@
 #define __Application_h__
 
 #include "viewPort.h"
-#include "pipeline.h"
-#include "swapChain.h"
 #include "model.h"
 #include "entity.h"
+#include "Renderer.h"
+#include "RenderSystem.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -29,22 +29,11 @@ class Application {
         viewPort ApplicationWindow = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
 
         coreDevice appDevice = coreDevice(ApplicationWindow);
-        std::unique_ptr<coreSwapChain> SwapChain;// = coreSwapChain(appDevice, ApplicationWindow.getExtent());
-        std::unique_ptr<pipeline> Pipeline;
-        //pipeline Pipeline = pipeline(appDevice,"shaders/vert.spv","shaders/frag.spv",pipeline::defaultPipelineConfigInfo(winWIDTH,winHEIGHT));
-        VkPipelineLayout pipelineLayout;
-        std::vector<VkCommandBuffer> commandBuffers;
+        Renderer appRenderer{ApplicationWindow, appDevice};
+
         std::vector<Entity> entities;
 
-        void createPipelineLayout();
-        void createPipeline();
-        void createCommandBuffers();
-        void freeCommanfBuffers();
-        void drawFrame();
         void loadEntities();
-        void recreateSwapChain();
-        void recordCommandBuffer(int imageIndex);
-        void renderObjects(VkCommandBuffer commandBuffer);
 
     public:
         Application();
@@ -52,7 +41,6 @@ class Application {
 
         Application(const Application&) = delete;
         Application &operator=(const Application&) = delete;
-        
 
         void run();
 
