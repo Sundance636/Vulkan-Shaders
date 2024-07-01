@@ -6,6 +6,8 @@
 #include "entity.h"
 #include "Renderer.h"
 #include "RenderSystem.h"
+#include "VectorRenderSystem.h"
+#include "VectorField.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -32,8 +34,11 @@ class Application {
         Renderer appRenderer{ApplicationWindow, appDevice};
 
         std::vector<Entity> entities;
+        std::vector<VectorField> Vfield;
 
         void loadEntities();
+        void loadVectorField();
+
 
     public:
         Application();
