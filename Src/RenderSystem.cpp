@@ -17,8 +17,6 @@ RenderSystem::~RenderSystem() {
     vkDestroyPipelineLayout(appDevice.device(), pipelineLayout, nullptr);
 }
 
-
-
 void RenderSystem::createPipelineLayout() {
 
     VkPushConstantRange pushConstantRange = {};

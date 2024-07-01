@@ -21,6 +21,7 @@ class Renderer {
 
     private:
         uint32_t currentImageIndex;
+        int currentFrameIndex;
         bool isFrameStarted;
 
         viewPort& RendererWindow;// = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
@@ -44,6 +45,7 @@ class Renderer {
 
         bool isFrameInProgress() const;
         VkCommandBuffer getCurrentCommandBuffer() const;
+        int getFrameIndex() const;
 
         VkRenderPass getSwapChainRenderPass() const;// { return SwapChain->getRenderPass(); }
 

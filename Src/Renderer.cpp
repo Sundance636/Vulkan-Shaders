@@ -4,6 +4,7 @@
 Renderer::Renderer( viewPort &window, coreDevice& device) : RendererWindow{window}, appDevice{device} {
     isFrameStarted = false;
     currentImageIndex = 0;
+    currentFrameIndex = 0;
     recreateSwapChain();
     createCommandBuffers();
 
@@ -19,18 +20,23 @@ bool Renderer::isFrameInProgress() const {
 
 VkCommandBuffer Renderer::getCurrentCommandBuffer() const { 
     assert( isFrameStarted && "Cannot get command buffer when frame not in progress!");
-    return commandBuffers[currentImageIndex];
+    return commandBuffers[currentFrameIndex];
 }
 
 VkRenderPass Renderer::getSwapChainRenderPass() const { 
     return SwapChain->getRenderPass(); 
 }
 
+int Renderer::getFrameIndex() const {
+    assert( isFrameStarted && "Cannot get frame index when frame not in progress!");
+    return currentFrameIndex;
+}
+
 
 void Renderer::createCommandBuffers() {
     VkCommandBufferAllocateInfo allocInfo{};
 
-    commandBuffers.resize(SwapChain->imageCount());
+    commandBuffers.resize(coreSwapChain::MAX_FRAMES_IN_FLIGHT);
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;//primary may be subimted for execution, not called by other command buffers
     allocInfo.commandPool = appDevice.getCommandPool();
@@ -63,11 +69,14 @@ void Renderer::recreateSwapChain() {
             SwapChain = std::make_unique<coreSwapChain>(appDevice, extent);
 
     } else {
-        SwapChain = std::make_unique<coreSwapChain>(appDevice, extent, std::move(SwapChain));
-        if(SwapChain->imageCount() != commandBuffers.size()) {
-            freeCommandBuffers();
-            createCommandBuffers();
+        std::shared_ptr<coreSwapChain> oldSwapChain = std::move(SwapChain);
+        SwapChain = std::make_unique<coreSwapChain>(appDevice, extent, oldSwapChain);
+
+        if(!oldSwapChain->compareSwapFormats(*SwapChain.get())) {
+            throw std::runtime_error("Swapchain image(or depth) format has changed!");
+            //make callback later
         }
+
     }
 
 }
@@ -118,7 +127,7 @@ void Renderer::endFrame() {
         throw std::runtime_error("failed to present swap chain image!");
     }
     isFrameStarted = false;
-    //currentFrameIndex = (currnetFrameIndex + 1) % SwapChain::MAX
+    currentFrameIndex = (currentFrameIndex + 1) % coreSwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
