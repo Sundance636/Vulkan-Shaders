@@ -11,14 +11,19 @@ Application::~Application() {
 
 
 void Application::run() {
-    RenderSystem RenderSystem{appDevice,appRenderer.getSwapChainRenderPass()};
+    RenderSystem Rendersystem{appDevice,appRenderer.getSwapChainRenderPass()};
+
+    //second render system for vector Field
+    VectorRenderSystem Rendersystem2{appDevice,appRenderer.getSwapChainRenderPass()};
 
     while (!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
 
         if(auto commandBuffer = appRenderer.beginFrame()) {
             appRenderer.beginSwapChainRenderPass(commandBuffer);
-            RenderSystem.renderObjects(commandBuffer, entities);
+            Rendersystem.renderObjects(commandBuffer, entities);
+
+            Rendersystem2.renderObjects(commandBuffer,  entities);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
             appRenderer.endFrame();
