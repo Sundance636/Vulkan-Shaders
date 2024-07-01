@@ -1,9 +1,9 @@
 #include "VectorRenderSystem.h"
 
 struct SimplePushConstantData {
-    glm::mat2 transform{1.0f};
+    glm::mat3 transform{1.0f};
     glm::vec2 offset;
-    alignas(16) glm::vec3 color;
+    alignas(32) glm::vec3 color;
 };
 
 VectorRenderSystem::VectorRenderSystem(coreDevice& device, VkRenderPass renderPass) : appDevice{device}  {
@@ -22,7 +22,7 @@ void VectorRenderSystem::createPipelineLayout() {
     VkPushConstantRange pushConstantRange = {};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(SimplePushConstantData) ;
 
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -58,15 +58,16 @@ void VectorRenderSystem::createPipeline(VkRenderPass renderPass) {
 void VectorRenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<VectorField>&Objects) {
     Pipeline->bind(commandBuffer);
     static float rotation = 0;
-    //rotation += 0.01f;
+    rotation += 0.01f;
 
 
     for( auto &obj : Objects) {
         SimplePushConstantData push{};
         obj.transform2d.rotation = rotation;
+        //obj.transform2d.translation = {obj.getPosition()};
         push.offset = obj.transform2d.translation;
         push.color = obj.color;
-        push.transform = obj.transform2d.mat2();
+        push.transform = obj.transform2d.mat3();
 
         //record to cmdbuffer
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);

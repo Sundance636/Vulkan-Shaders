@@ -11,20 +11,31 @@
 #include <cstring>
 
 struct Transform2dComponent {
-    glm::vec2 translation{};
-    glm::vec2 scale{1.0f, 1.0f};
+    glm::vec2 translation{0.0f,0.0f};
+    glm::vec3 scale{1.0f, 1.0f, 1.0f};
     float rotation;
 
-    glm::mat2 mat2() { 
+    glm::mat3 mat3() { 
         const float s = glm::sin(rotation);
         const float c = glm::cos(rotation);
 
-        glm::mat2 rotMatrix{{c, s}, {-s, c}};
+        glm::mat3 rotMatrix{{c, s,0.0f}, {-s, c,0.0f},{0.0f,0.0f,1.0f}};
 
-        glm::mat2 scaleMat{{scale.x, 0.0f},
-                            {0.0f, scale.y}};
+        glm::mat3 scaleMat{{scale.x, 0.0f,0.0f},
+                            {0.0f, scale.y,0.0f},
+                            {0.0f,0.0f,1.0f}};
+        
+        glm::mat3 translationMat{{1.0f, 0.0f,-translation.x},
+                                {0.0f, 1.0f,-translation.y},
+                                {0.0f,0.0f,1.0f}};
 
-        return rotMatrix * scaleMat;
+        glm::mat3 invTranslationMat{{1.0f, 0.0f,translation.x},
+                                {0.0f, 1.0f,translation.y},
+                                {0.0f,0.0f,1.0f}};
+
+        
+
+        return rotMatrix;// invTranslationMat * rotMatrix * scaleMat * translationMat;
         }
 };
 
@@ -34,7 +45,7 @@ struct Transform2dComponent {
 class Model {
     public:
         struct Vertex {
-            glm::vec2 position;
+            glm::vec3 position;
             glm::vec3 color;
 
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();

@@ -1,9 +1,9 @@
 #include "RenderSystem.h"
 
 struct SimplePushConstantData {
-    glm::mat2 transform{1.0f};
+    glm::mat3 transform{1.0f};
     glm::vec2 offset;
-    alignas(16) glm::vec3 color;
+    alignas(32) glm::vec3 color;
 };
 
 RenderSystem::RenderSystem(coreDevice& device, VkRenderPass renderPass) : appDevice{device}  {
@@ -62,7 +62,7 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
         obj.transform2d.rotation = rotation;
         push.offset = obj.transform2d.translation;
         push.color = obj.color;
-        push.transform = obj.transform2d.mat2();
+        push.transform = obj.transform2d.mat3();
 
         //record to cmdbuffer
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);

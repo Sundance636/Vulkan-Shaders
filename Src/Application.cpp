@@ -40,9 +40,9 @@ void Application::run() {
 void Application::loadEntities() {
     //vertex position, then colotr, which is thne interpolated
     std::vector<Model::Vertex> vertices {
-        {{0.0f, -0.5f},{1.0f,0.0f,0.0f}},
-        {{0.5f, 0.5f},{0.0f,1.0f,0.0f}},
-        {{-0.5f, 0.5f},{0.0f,0.0f,1.0f}}
+        {{0.0f, -0.5f,1.0f},{1.0f,0.0f,0.0f}},
+        {{0.5f, 0.5f,1.0f},{0.0f,1.0f,0.0f}},
+        {{-0.5f, 0.5f,1.0f},{0.0f,0.0f,1.0f}}
     };
 
 
@@ -69,17 +69,21 @@ void Application::loadVectorField() {
         for(float j = -0.9f; j < 1.0f; j += 0.1f ) {
 
         std::vector<Model::Vertex> vertices {
-            {{i, j},{1.0f,0.0f,0.0f}},
-            {{i+0.01f, j},{0.0f,1.0f,0.0f}},
-            {{i, j},{0.0f,0.0f,1.0f}}
+            {{i, j,1.0f},{1.0f,0.0f,0.0f}},
+            {{i+0.01f, j,1.0f},{0.0f,1.0f,0.0f}},
+            {{i, j,1.0f},{0.0f,0.0f,1.0f}}
         };
+
 
 
         auto appModel = std::make_shared<Model>(appDevice, vertices);
         VectorField field = VectorField::createVectorField();
+        field.setPositon(i,j);
         field.model = appModel;
-        field.color = {0.8f, 0.8f, 0.8f};
-        //triangle.transform2d.translation.x = 0.2f;
+        field.color = {0.6f, 0.6f, 0.6f};
+        field.transform2d.translation.x = i;
+        field.transform2d.translation.y = j;
+        
 
 
             Vfield.push_back(std::move(field));
