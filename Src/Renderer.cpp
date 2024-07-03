@@ -27,6 +27,10 @@ VkRenderPass Renderer::getSwapChainRenderPass() const {
     return SwapChain->getRenderPass(); 
 }
 
+float Renderer::getAspectRatio() const {
+    return SwapChain->extentAspectRatio();
+}
+
 int Renderer::getFrameIndex() const {
     assert( isFrameStarted && "Cannot get frame index when frame not in progress!");
     return currentFrameIndex;

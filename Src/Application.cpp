@@ -12,13 +12,19 @@ Application::~Application() {
 
 void Application::run() {
     RenderSystem RenderSystem{appDevice,appRenderer.getSwapChainRenderPass()};
+    Camera camera{};
 
     while (!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
 
+        float aspectRatio = appRenderer.getAspectRatio();
+
+        //camera.setOrthographicProjection(-aspectRatio,aspectRatio,-1,1,-1,1);
+        camera.setPerspectiveProjection(glm::two_pi<float>()/8.0f,aspectRatio,0.1f,10.0f);
+
         if(auto commandBuffer = appRenderer.beginFrame()) {
             appRenderer.beginSwapChainRenderPass(commandBuffer);
-            RenderSystem.renderObjects(commandBuffer, entities);
+            RenderSystem.renderObjects(commandBuffer, entities, camera);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
             appRenderer.endFrame();
@@ -93,7 +99,7 @@ void Application::loadEntities() {
 
     auto cube = Entity::createEntity();
     cube.model = appModel;
-    cube.transform.translation = {0.0f,0.0f,0.5f};
+    cube.transform.translation = {0.0f,0.0f,2.5f};
     cube.transform.scale = {0.5f,0.5f,0.5f};
     entities.push_back(std::move(cube));
 }
