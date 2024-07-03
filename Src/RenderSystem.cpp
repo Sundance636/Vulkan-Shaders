@@ -52,8 +52,6 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 
 void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects, const Camera &camera) {
     Pipeline->bind(commandBuffer);
-    static float rotation = 0;
-    rotation += 0.1f;
 
     glm::mat4 projectionView = camera.getProjection() * camera.getViewMat();
 
@@ -61,8 +59,6 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
     for( auto &obj : Objects) {
         SimplePushConstantData push{};
 
-        obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
-        obj.transform.rotation.x = glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
 
 
         push.color = obj.color;
