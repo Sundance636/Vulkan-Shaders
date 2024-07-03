@@ -20,17 +20,32 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;//number of bytes needed to store the vertex buffer
 
-    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    //stagin buffer
+    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        vertexBuffer,vertexBufferMemory);
+        stagingBuffer,stagingBufferMemory);
 
     void* data;
 
     //create a reigon of host memory mapped to device memory
-    vkMapMemory(modelDevice.device(), vertexBufferMemory, 0, bufferSize, 0, &data);
+    vkMapMemory(modelDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
     //coherent bit makes propagation automatic
     memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(modelDevice.device(), vertexBufferMemory);
+    vkUnmapMemory(modelDevice.device(), stagingBufferMemory);
+
+    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT ,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        vertexBuffer,vertexBufferMemory);
+
+    //copy from staging buffer to device
+
+    modelDevice.copyBuffer(stagingBuffer,vertexBuffer,bufferSize);
+
+    vkDestroyBuffer(modelDevice.device(), stagingBuffer, nullptr);
+    vkFreeMemory(modelDevice.device(), stagingBufferMemory, nullptr);
 
 }
 
@@ -44,17 +59,32 @@ void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
 
     VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;//number of bytes needed to store the vertex buffer
 
-    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    //stagin buffer
+    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        indexBuffer,indexBufferMemory);
+        stagingBuffer,stagingBufferMemory);
 
     void* data;
 
     //create a reigon of host memory mapped to device memory
-    vkMapMemory(modelDevice.device(), indexBufferMemory, 0, bufferSize, 0, &data);
+    vkMapMemory(modelDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
     //coherent bit makes propagation automatic
     memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(modelDevice.device(), indexBufferMemory);
+    vkUnmapMemory(modelDevice.device(), stagingBufferMemory);
+
+    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT ,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        indexBuffer,indexBufferMemory);
+
+    //copy from staging buffer to device
+
+    modelDevice.copyBuffer(stagingBuffer,indexBuffer,bufferSize);
+
+    vkDestroyBuffer(modelDevice.device(), stagingBuffer, nullptr);
+    vkFreeMemory(modelDevice.device(), stagingBufferMemory, nullptr);
 
 }
 
