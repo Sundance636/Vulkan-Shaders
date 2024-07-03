@@ -1,12 +1,18 @@
 #include "model.h"
 
-Model::Model(coreDevice &device, const std::vector<Vertex> &vertices) : modelDevice{device} {
-    createVertexBuffers(vertices);
+Model::Model(coreDevice &device, const Model::Builder &builder) : modelDevice{device} {
+    createVertexBuffers(builder.vertices);
+    createIndexBuffers(builder.indicies);
 }
 
 Model::~Model() {
     vkDestroyBuffer(modelDevice.device(), vertexBuffer, nullptr);
     vkFreeMemory(modelDevice.device(), vertexBufferMemory, nullptr);
+
+    if(hasIndexBuffer) {
+        vkDestroyBuffer(modelDevice.device(), indexBuffer, nullptr);
+        vkFreeMemory(modelDevice.device(), indexBufferMemory, nullptr);
+    }
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
@@ -28,9 +34,36 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 
 }
 
+void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
+    indexCount = static_cast<uint32_t>(indices.size());
+    hasIndexBuffer = (indexCount > 0);
+
+    if(!hasIndexBuffer) {
+        return;
+    }
+
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;//number of bytes needed to store the vertex buffer
+
+    modelDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        indexBuffer,indexBufferMemory);
+
+    void* data;
+
+    //create a reigon of host memory mapped to device memory
+    vkMapMemory(modelDevice.device(), indexBufferMemory, 0, bufferSize, 0, &data);
+    //coherent bit makes propagation automatic
+    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+    vkUnmapMemory(modelDevice.device(), indexBufferMemory);
+
+}
 
 void Model::draw(VkCommandBuffer commandBuffer) {
-    vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+    if(hasIndexBuffer) {
+        vkCmdDrawIndexed(commandBuffer,indexCount,1,0,0,0);
+    } else {
+        vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+    }
 }
 
 void Model::bind(VkCommandBuffer commandBuffer) {
@@ -38,6 +71,11 @@ void Model::bind(VkCommandBuffer commandBuffer) {
     VkDeviceSize offsets[] = {0};
 
     vkCmdBindVertexBuffers(commandBuffer, 0,1, buffers, offsets);
+
+    if(hasIndexBuffer) {
+        //index type should scale with the number of vertices
+        vkCmdBindIndexBuffer(commandBuffer,indexBuffer,0,VK_INDEX_TYPE_UINT32);
+    }
 }
 
 std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptions() {
