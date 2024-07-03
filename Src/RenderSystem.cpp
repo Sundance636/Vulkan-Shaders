@@ -55,6 +55,8 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
     static float rotation = 0;
     rotation += 0.1f;
 
+    glm::mat4 projectionView = camera.getProjection() * camera.getViewMat();
+
 
     for( auto &obj : Objects) {
         SimplePushConstantData push{};
@@ -64,7 +66,7 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
 
 
         push.color = obj.color;
-        push.transform = camera.getProjection() * obj.transform.fastMat4();
+        push.transform = projectionView * obj.transform.fastMat4();
 
         //record to cmdbuffer
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);

@@ -13,6 +13,7 @@ Application::~Application() {
 void Application::run() {
     RenderSystem RenderSystem{appDevice,appRenderer.getSwapChainRenderPass()};
     Camera camera{};
+    camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
 
     while (!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
