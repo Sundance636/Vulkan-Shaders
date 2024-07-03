@@ -6,6 +6,7 @@
 #include "entity.h"
 #include "Renderer.h"
 #include "RenderSystem.h"
+#include "Camera.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS

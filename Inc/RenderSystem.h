@@ -4,6 +4,7 @@
 #include "pipeline.h"
 #include "model.h"
 #include "entity.h"
+#include "Camera.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -26,6 +27,7 @@ class RenderSystem {
         std::unique_ptr<pipeline> Pipeline;
         VkPipelineLayout pipelineLayout;
 
+
         void createPipelineLayout();
         void createPipeline(VkRenderPass renderPass);
 
@@ -33,7 +35,7 @@ class RenderSystem {
         RenderSystem(coreDevice& device, VkRenderPass renderPass);
         ~RenderSystem();
 
-        void renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects);
+        void renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects, const Camera &camera);
 
 
         RenderSystem(const RenderSystem&) = delete;

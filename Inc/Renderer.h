@@ -48,6 +48,7 @@ class Renderer {
         int getFrameIndex() const;
 
         VkRenderPass getSwapChainRenderPass() const;// { return SwapChain->getRenderPass(); }
+        float getAspectRatio() const;
 
         Renderer(const Renderer&) = delete;
         Renderer &operator=(const Renderer&) = delete;
