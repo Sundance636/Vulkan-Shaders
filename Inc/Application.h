@@ -7,6 +7,7 @@
 #include "Renderer.h"
 #include "RenderSystem.h"
 #include "Camera.h"
+#include "keyboard.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -19,6 +20,7 @@
 #include <cassert>
 #include <memory>
 #include <iostream>
+#include <chrono>
 
 class Application {
 

@@ -49,6 +49,10 @@ VkExtent2D viewPort::getExtent() {
     return extent;
 }
 
+GLFWwindow* viewPort::getGLFWwindow() const {
+    return window;
+}
+
 bool viewPort::wasframeBufferResized() {
     return frameBufferResized;
 }

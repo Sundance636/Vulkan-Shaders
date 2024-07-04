@@ -29,6 +29,7 @@ class viewPort {
             VkExtent2D getExtent();
             bool wasframeBufferResized();
             void resetWindowResizedFlag();
+            GLFWwindow* getGLFWwindow() const;
 
             void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
