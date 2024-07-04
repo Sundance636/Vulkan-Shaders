@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -std=c++17 -I./Inc
+CXXFLAGS=-Wall -std=c++17 -I./Inc -I./Libs
 LDFLAGS=-lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 GLSLC=glslc
