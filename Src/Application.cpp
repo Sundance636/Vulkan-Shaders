@@ -28,6 +28,8 @@ void Application::run() {
         float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
         currentTime = newTime;
 
+        std::cout << frameTime * 1000 << "ms\n";//convert to miliseconds
+
         cameraController.moveInPlaneXZ(ApplicationWindow.getGLFWwindow(),frameTime,viewerObject);
         camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
@@ -58,5 +60,7 @@ void Application::loadEntities() {
     loadedObject.transform.translation = {0.0f,0.0f,2.5f};
     loadedObject.transform.scale = glm::vec3{1.0f};
     entities.push_back(std::move(loadedObject));
+
+    
 }
 

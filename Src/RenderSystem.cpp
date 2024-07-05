@@ -2,7 +2,7 @@
 
 struct SimplePushConstantData {
     glm::mat4 transform{1.0f};
-    alignas(16) glm::vec3 color;
+    alignas(16) glm::mat4 modelMatrix;
 };
 
 RenderSystem::RenderSystem(coreDevice& device, VkRenderPass renderPass) : appDevice{device}  {
@@ -61,8 +61,8 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
 
 
 
-        push.color = obj.color;
-        push.transform = projectionView * obj.transform.fastMat4();
+        push.modelMatrix = obj.transform.fastMat4();
+        push.transform = projectionView * push.modelMatrix;
 
         //record to cmdbuffer
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
