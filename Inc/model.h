@@ -2,6 +2,7 @@
 #define __model_h__
 
 #include "coreDevice.h"
+#include "Buffer.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -52,12 +53,11 @@ class Model {
 
     private:
         coreDevice &modelDevice;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+
+        std::unique_ptr<Buffer> vertexBuffer;
         uint32_t vertexCount;
 
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+        std::unique_ptr<Buffer> indexBuffer;
         uint32_t indexCount;
         bool hasIndexBuffer = false;
         

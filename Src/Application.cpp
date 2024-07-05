@@ -1,6 +1,13 @@
 #include "Application.h"
 
 
+//Uniform Buffer Object
+struct  GlobalUbo {
+    glm::mat4 projectionView{1.0f};
+    glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f,-3.0f,1.0f});
+};
+
+
 Application::Application() {
     loadEntities();
 }
@@ -11,6 +18,18 @@ Application::~Application() {
 
 
 void Application::run() {
+    std::vector<std::unique_ptr<Buffer>> uboBuffers(coreSwapChain::MAX_FRAMES_IN_FLIGHT);
+  for (uint32_t i = 0; i < uboBuffers.size(); i++) {
+    uboBuffers[i] = std::make_unique<Buffer>(
+        appDevice,
+        sizeof(GlobalUbo),
+        1,
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    uboBuffers[i]->map();
+  }
+
+
     RenderSystem RenderSystem{appDevice,appRenderer.getSwapChainRenderPass()};
     Camera camera{};
     camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
@@ -39,8 +58,24 @@ void Application::run() {
         camera.setPerspectiveProjection(glm::two_pi<float>()/8.0f,aspectRatio,0.1f,50.0f);
 
         if(auto commandBuffer = appRenderer.beginFrame()) {
+            //prepping objects
+            int frameindex = appRenderer.getFrameIndex();
+            FrameInfo frameInfo {
+                frameindex,
+                frameTime,
+                commandBuffer,
+                camera
+            };
+
+            GlobalUbo ubo{};
+            ubo.projectionView = camera.getProjection() * camera.getViewMat();
+            uboBuffers[frameindex]->writeToBuffer(&ubo);
+            uboBuffers[frameindex]->flush();
+
+
+            //render stage
             appRenderer.beginSwapChainRenderPass(commandBuffer);
-            RenderSystem.renderObjects(commandBuffer, entities, camera);
+            RenderSystem.renderObjects(frameInfo, entities);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
             appRenderer.endFrame();

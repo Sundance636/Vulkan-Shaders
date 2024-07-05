@@ -8,6 +8,7 @@
 #include "RenderSystem.h"
 #include "Camera.h"
 #include "keyboard.h"
+#include "Buffer.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS

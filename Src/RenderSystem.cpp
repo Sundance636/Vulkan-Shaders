@@ -50,10 +50,10 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 
 }
 
-void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects, const Camera &camera) {
-    Pipeline->bind(commandBuffer);
+void RenderSystem::renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objects) {
+    Pipeline->bind(frameInfo.commandBuffer);
 
-    glm::mat4 projectionView = camera.getProjection() * camera.getViewMat();
+    glm::mat4 projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getViewMat();
 
 
     for( auto &obj : Objects) {
@@ -65,8 +65,8 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
         push.transform = projectionView * push.modelMatrix;
 
         //record to cmdbuffer
-        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-        obj.model->bind(commandBuffer);
-        obj.model->draw(commandBuffer);
+        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+        obj.model->bind(frameInfo.commandBuffer);
+        obj.model->draw(frameInfo.commandBuffer);
     }
 }
