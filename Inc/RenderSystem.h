@@ -29,11 +29,11 @@ class RenderSystem {
         VkPipelineLayout pipelineLayout;
 
 
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void createPipeline(VkRenderPass renderPass);
 
     public:
-        RenderSystem(coreDevice& device, VkRenderPass renderPass);
+        RenderSystem(coreDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~RenderSystem();
 
         void renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objects);

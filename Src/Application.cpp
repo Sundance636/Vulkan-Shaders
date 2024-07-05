@@ -4,11 +4,16 @@
 //Uniform Buffer Object
 struct  GlobalUbo {
     glm::mat4 projectionView{1.0f};
-    glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f,-3.0f,1.0f});
+    alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f,-3.0f,1.0f});
 };
 
 
 Application::Application() {
+    globalPool = DescriptorPool::Builder(appDevice)
+    .setMaxSets(coreSwapChain::MAX_FRAMES_IN_FLIGHT)
+    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,coreSwapChain::MAX_FRAMES_IN_FLIGHT)
+    .build();
+
     loadEntities();
 }
 
@@ -29,8 +34,20 @@ void Application::run() {
     uboBuffers[i]->map();
   }
 
+    auto globalSetLayout = DescriptorSetLayout::Builder(appDevice)
+    .addBinding(0,VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+    .build();
 
-    RenderSystem RenderSystem{appDevice,appRenderer.getSwapChainRenderPass()};
+    std::vector<VkDescriptorSet> globalDescriptorSets(coreSwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (uint32_t i = 0; i < globalDescriptorSets.size(); i++) {
+        auto bufferInfo = uboBuffers[i]->descriptorInfo();
+        DescriptorWriter(*globalSetLayout, *globalPool)
+            .writeBuffer(0, &bufferInfo)
+            .build(globalDescriptorSets[i]);
+    }
+
+
+    RenderSystem renderSystem{appDevice,appRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
     Camera camera{};
     camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
 
@@ -64,10 +81,13 @@ void Application::run() {
                 frameindex,
                 frameTime,
                 commandBuffer,
-                camera
+                camera,
+                globalDescriptorSets[frameindex]
             };
 
             GlobalUbo ubo{};
+            ubo.lightDirection = viewerObject.transform.translation;
+
             ubo.projectionView = camera.getProjection() * camera.getViewMat();
             uboBuffers[frameindex]->writeToBuffer(&ubo);
             uboBuffers[frameindex]->flush();
@@ -75,7 +95,7 @@ void Application::run() {
 
             //render stage
             appRenderer.beginSwapChainRenderPass(commandBuffer);
-            RenderSystem.renderObjects(frameInfo, entities);
+            renderSystem.renderObjects(frameInfo, entities);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
             appRenderer.endFrame();
@@ -88,7 +108,7 @@ void Application::run() {
 
 
 void Application::loadEntities() {
-    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/Sora2.obj");
+    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/cat.obj");
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
