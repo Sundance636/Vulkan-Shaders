@@ -54,7 +54,7 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects) {
     Pipeline->bind(commandBuffer);
     static float rotation = 0;
-    rotation += 0.01f;
+    rotation += 0.1f;
 
 
     for( auto &obj : Objects) {
