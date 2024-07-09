@@ -108,7 +108,7 @@ void Application::run() {
 
 
 void Application::loadEntities() {
-    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/cat.obj");
+    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/Sora2.obj");
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
