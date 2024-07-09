@@ -15,7 +15,7 @@ struct Transform2dComponent {
     glm::vec3 scale{1.0f, 1.0f, 1.0f};
     float rotation;
 
-    glm::mat3 mat3() { 
+    glm::mat2 mat3() { 
         const float s = glm::sin(rotation);
         const float c = glm::cos(rotation);
 
@@ -35,7 +35,7 @@ struct Transform2dComponent {
 
         
 
-        return rotMatrix;// invTranslationMat * rotMatrix * scaleMat * translationMat;
+        return rotMatrix * scaleMat;// invTranslationMat * rotMatrix * scaleMat * translationMat;
         }
 };
 
@@ -45,7 +45,7 @@ struct Transform2dComponent {
 class Model {
     public:
         struct Vertex {
-            glm::vec3 position;
+            glm::vec2 position;
             glm::vec3 color;
 
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();

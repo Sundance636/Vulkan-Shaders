@@ -2,7 +2,7 @@
 
 
 Application::Application() {
-    loadEntities();
+    //loadEntities();
     loadVectorField();
 }
 
@@ -15,7 +15,7 @@ void Application::run() {
     RenderSystem Rendersystem{appDevice,appRenderer.getSwapChainRenderPass()};
 
     //second render system for vector Field
-    VectorRenderSystem Rendersystem2{appDevice,appRenderer.getSwapChainRenderPass()};
+    //VectorRenderSystem Rendersystem2{appDevice,appRenderer.getSwapChainRenderPass()};
 
 
     while (!ApplicationWindow.shouldClose()) {
@@ -25,7 +25,7 @@ void Application::run() {
             appRenderer.beginSwapChainRenderPass(commandBuffer);
             Rendersystem.renderObjects(commandBuffer, entities);
 
-            Rendersystem2.renderObjects(commandBuffer,  Vfield);
+            //Rendersystem2.renderObjects(commandBuffer,  Vfield);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
             appRenderer.endFrame();
@@ -40,9 +40,9 @@ void Application::run() {
 void Application::loadEntities() {
     //vertex position, then colotr, which is thne interpolated
     std::vector<Model::Vertex> vertices {
-        {{0.0f, -0.5f,1.0f},{1.0f,0.0f,0.0f}},
-        {{0.5f, 0.5f,1.0f},{0.0f,1.0f,0.0f}},
-        {{-0.5f, 0.5f,1.0f},{0.0f,0.0f,1.0f}}
+        {{0.0f, -0.5f},{1.0f,0.0f,0.0f}},
+        {{0.5f, 0.5f,},{0.0f,1.0f,0.0f}},
+        {{-0.5f, 0.5f},{0.0f,0.0f,1.0f}}
     };
 
 
@@ -58,38 +58,41 @@ void Application::loadEntities() {
     entities.push_back(std::move(triangle));
 }
 
+std::unique_ptr<Model> createSquareModel(coreDevice& device, glm::vec2 offset) {
+  std::vector<Model::Vertex> vertices = {
+      {{-0.5f, -0.5f}},
+      {{0.5f, 0.5f}},
+      {{-0.5f, 0.5f}},
+      {{-0.5f, -0.5f}},
+      {{0.5f, -0.5f}},
+      {{0.5f, 0.5f}},  //
+  };
+  for (auto& v : vertices) {
+    v.position += offset;
+  }
+  return std::make_unique<Model>(device, vertices);
+}
+
 //initialize vector field here
 void Application::loadVectorField() {
     //vertex position, then colotr, which is thne interpolated
-    
+
+    std::shared_ptr<Model>  appModel = createSquareModel( appDevice, {0.5f, 0.0f});
 
 
-    //triangle.transform2d.scale = {2.0f, 0.5f };
-    for(float i = -0.9f; i < 1.0f; i += 0.1f ) {
-        for(float j = -0.9f; j < 1.0f; j += 0.1f ) {
-
-        std::vector<Model::Vertex> vertices {
-            {{i, j,1.0f},{1.0f,0.0f,0.0f}},
-            {{i+0.01f, j,1.0f},{0.0f,1.0f,0.0f}},
-            {{i, j,1.0f},{0.0f,0.0f,1.0f}}
-        };
-
-
-
-        auto appModel = std::make_shared<Model>(appDevice, vertices);
-        VectorField field = VectorField::createVectorField();
-        field.setPositon(i,j);
-        field.model = appModel;
-        field.color = {0.6f, 0.6f, 0.6f};
-        field.transform2d.translation.x = i;
-        field.transform2d.translation.y = j;
-        
-
-
-            Vfield.push_back(std::move(field));
-        }
-            
+  int gridCount = 40;
+  for (int i = 0; i < gridCount; i++) {
+    for (int j = 0; j < gridCount; j++) {
+      auto vf = Entity::createEntity();
+      vf.transform2d.scale = glm::vec3(0.005f);
+      vf.transform2d.translation = {
+          -1.0f + (i + 0.5f) * 2.0f / gridCount,
+          -1.0f + (j + 0.5f) * 2.0f / gridCount};
+      vf.color = glm::vec3(1.0f);
+      vf.model = appModel;
+      entities.push_back(std::move(vf));
     }
+  }
 
     
 }

@@ -1,0 +1,32 @@
+# Blender 4.1.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Material01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd /home/sunday/Downloads/PlayStation 2 - Kingdom Hearts 2 Final Mix JPN - Sora Final Form High-Poly/Final Sora (Cinematic)/FMSora.png
+
+newmtl Material02
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd /home/sunday/Downloads/PlayStation 2 - Kingdom Hearts 2 Final Mix JPN - Sora Final Form High-Poly/Final Sora (Cinematic)/FMChain.png
+
+newmtl Material03
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 1
+map_Kd /home/sunday/Downloads/PlayStation 2 - Kingdom Hearts 2 Final Mix JPN - Sora Final Form High-Poly/Final Sora (Cinematic)/FinalFMSora.png

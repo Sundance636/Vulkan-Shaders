@@ -1,7 +1,7 @@
 #include "RenderSystem.h"
 
 struct SimplePushConstantData {
-    glm::mat3 transform{1.0f};
+    glm::mat2 transform{1.0f};
     glm::vec2 offset;
     alignas(32) glm::vec3 color;
 };
@@ -54,7 +54,7 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects) {
     Pipeline->bind(commandBuffer);
     static float rotation = 0;
-    rotation += 0.1f;
+    rotation += 0.01f;
 
 
     for( auto &obj : Objects) {
