@@ -8,6 +8,8 @@
 #include "RenderSystem.h"
 #include "Camera.h"
 #include "keyboard.h"
+#include "Buffer.h"
+#include "Descriptors.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -33,8 +35,10 @@ class Application {
 
         coreDevice appDevice = coreDevice(ApplicationWindow);
         Renderer appRenderer{ApplicationWindow, appDevice};
-
+        
+        std::unique_ptr<DescriptorPool> globalPool{};
         std::vector<Entity> entities;
+        
 
         void loadEntities();
 

@@ -2,11 +2,11 @@
 
 struct SimplePushConstantData {
     glm::mat4 transform{1.0f};
-    alignas(16) glm::vec3 color;
+    alignas(16) glm::mat4 modelMatrix;
 };
 
-RenderSystem::RenderSystem(coreDevice& device, VkRenderPass renderPass) : appDevice{device}  {
-    createPipelineLayout();
+RenderSystem::RenderSystem(coreDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : appDevice{device}  {
+    createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 
 
@@ -16,18 +16,19 @@ RenderSystem::~RenderSystem() {
     vkDestroyPipelineLayout(appDevice.device(), pipelineLayout, nullptr);
 }
 
-void RenderSystem::createPipelineLayout() {
+void RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
 
     VkPushConstantRange pushConstantRange = {};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     
@@ -50,23 +51,24 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 
 }
 
-void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Entity>&Objects, const Camera &camera) {
-    Pipeline->bind(commandBuffer);
+void RenderSystem::renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objects) {
+    Pipeline->bind(frameInfo.commandBuffer);
 
-    glm::mat4 projectionView = camera.getProjection() * camera.getViewMat();
+    //glm::mat4 projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getViewMat();
 
-
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer,VK_PIPELINE_BIND_POINT_GRAPHICS,pipelineLayout,0,1,&frameInfo.globalDescriptorSet,0,nullptr);
+        
     for( auto &obj : Objects) {
         SimplePushConstantData push{};
 
 
 
-        push.color = obj.color;
-        push.transform = projectionView * obj.transform.fastMat4();
+        push.modelMatrix = obj.transform.fastMat4();
+        //push.transform = projectionView * push.modelMatrix;
 
         //record to cmdbuffer
-        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-        obj.model->bind(commandBuffer);
-        obj.model->draw(commandBuffer);
+        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+        obj.model->bind(frameInfo.commandBuffer);
+        obj.model->draw(frameInfo.commandBuffer);
     }
 }
