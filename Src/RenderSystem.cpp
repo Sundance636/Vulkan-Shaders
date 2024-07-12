@@ -59,7 +59,7 @@ void RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Enti
 
     for( auto &obj : Objects) {
         SimplePushConstantData push{};
-        obj.transform2d.rotation = rotation;
+        //obj.transform2d.rotation = rotation;
         push.offset = obj.transform2d.translation;
         push.color = obj.color;
         push.transform = obj.transform2d.mat3();

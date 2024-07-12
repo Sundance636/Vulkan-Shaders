@@ -8,11 +8,14 @@
 #include "RenderSystem.h"
 #include "VectorRenderSystem.h"
 #include "VectorField.h"
+#include "PhysicsSystem.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE //maybe change later
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
 
 #include <iostream>
 #include <stdexcept>
@@ -34,6 +37,7 @@ class Application {
         Renderer appRenderer{ApplicationWindow, appDevice};
 
         std::vector<Entity> entities;
+        std::vector<Entity> physicsObj;
         std::vector<VectorField> Vfield;
 
         void loadEntities();

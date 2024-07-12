@@ -4,11 +4,18 @@
 #include "model.h"
 
 #include <memory>
-
+struct RigidBody2dComponent {
+    glm::vec2 velocity;
+    float mass{1.0f};
+};
+        
 
 class Entity {
 
     public:
+        RigidBody2dComponent bodyComponent{};
+        
+
         using id_t = unsigned int;
 
         std::shared_ptr<Model> model{};
