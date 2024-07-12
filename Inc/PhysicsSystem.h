@@ -13,7 +13,7 @@ class PhysicsSystem {
     public:
 
         PhysicsSystem(float gravity);
-        void ComputeObjects();
+        void ComputeObjects(std::vector<Entity>& objs, float dt, unsigned int substeps);
         void ComputeField(std::vector<Entity>& vectorField, std::vector<Entity>& Objects);
         glm::vec2 ComputeForce(Entity& vector, Entity& Object);
 

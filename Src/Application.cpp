@@ -15,7 +15,7 @@ std::unique_ptr<Model> createCircleModel(coreDevice& device, unsigned int numSid
 void Application::run() {
     RenderSystem Rendersystem{appDevice,appRenderer.getSwapChainRenderPass()};
 
-    PhysicsSystem physicsEngine{9.81};//init to earths gravity
+    PhysicsSystem physicsEngine{0.81};//init to earths gravity
 
     //second render system for vector Field
     //VectorRenderSystem Rendersystem2{appDevice,appRenderer.getSwapChainRenderPass()};
@@ -26,12 +26,30 @@ void Application::run() {
     std::vector<Entity> physicsObjects{};
     Entity red = Entity::createEntity();
     red.transform2d.scale = glm::vec3{.05f};
-    //red.transform2d.translation = {.5f, .5f};
+    red.transform2d.translation = {.5f, .5f};
     red.color = {1.f, 0.f, 0.f};
-    red.bodyComponent.velocity = {-.5f, .0f};
+    red.bodyComponent.velocity = {-.05f, .0f};
 
     red.model = circleModel;
     physicsObjects.push_back(std::move(red));
+
+    Entity blue = Entity::createEntity();
+    blue.transform2d.scale = glm::vec3{.05f};
+    blue.transform2d.translation = {-.45f, -.25f};
+    blue.color = {0.f, 0.f, 1.f};
+    blue.bodyComponent.velocity = {.05f, .0f};
+
+    blue.model = circleModel;
+    physicsObjects.push_back(std::move(blue));
+
+    Entity green = Entity::createEntity();
+    green.transform2d.scale = glm::vec3{.05f};
+    green.transform2d.translation = {-.25f, -.45f};
+    green.color = {0.f, 1.f, 0.f};
+    green.bodyComponent.velocity = {0.15f, 0.05f};
+
+    green.model = circleModel;
+    physicsObjects.push_back(std::move(green));
 
 
 
@@ -40,6 +58,7 @@ void Application::run() {
 
         if(auto commandBuffer = appRenderer.beginFrame()) {
 
+            physicsEngine.ComputeObjects(physicsObjects,1.0f/60.0f,1);
             physicsEngine.ComputeField(entities,physicsObjects);
 
             appRenderer.beginSwapChainRenderPass(commandBuffer);
