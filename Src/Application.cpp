@@ -5,6 +5,7 @@
 struct  GlobalUbo {
     glm::mat4 projectionView{1.0f};
     alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f,-3.0f,1.0f});
+    float deltaTime = 0;
 };
 
 
@@ -56,6 +57,9 @@ void Application::run() {
     KeyboardMovementController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
+    float dt = 0;
+    float wavetime = 0;
+    auto newTime2 = std::chrono::high_resolution_clock::now();
 
     while(!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
@@ -74,6 +78,16 @@ void Application::run() {
         //camera.setOrthographicProjection(-aspectRatio,aspectRatio,-1,1,-1,1);
         camera.setPerspectiveProjection(glm::two_pi<float>()/8.0f,aspectRatio,0.1f,50.0f);
 
+        wavetime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - newTime2).count();
+
+        if(wavetime >= 0.01f) {
+            dt+= 0.01f;//keeps it so its independent of frame start/end
+            newTime2 = std::chrono::high_resolution_clock::now();
+
+
+        }
+
+
         if(auto commandBuffer = appRenderer.beginFrame()) {
             //prepping objects
             int frameindex = appRenderer.getFrameIndex();
@@ -89,6 +103,7 @@ void Application::run() {
             ubo.lightDirection = viewerObject.transform.translation;
 
             ubo.projectionView = camera.getProjection() * camera.getViewMat();
+            ubo.deltaTime = dt;
             uboBuffers[frameindex]->writeToBuffer(&ubo);
             uboBuffers[frameindex]->flush();
 
@@ -101,6 +116,8 @@ void Application::run() {
             appRenderer.endFrame();
         }
 
+
+
     }
     
     vkDeviceWaitIdle(appDevice.device());
@@ -108,12 +125,12 @@ void Application::run() {
 
 
 void Application::loadEntities() {
-    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/Sora2.obj");
+    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/flatPlane.obj");
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
-    loadedObject.transform.translation = {0.0f,0.0f,2.5f};
-    loadedObject.transform.scale = glm::vec3{1.0f};
+    loadedObject.transform.translation = {0.0f,0.0f,20.5f};
+    loadedObject.transform.scale = glm::vec3{1.5f};
     entities.push_back(std::move(loadedObject));
 
     

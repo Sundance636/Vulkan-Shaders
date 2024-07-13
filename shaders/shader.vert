@@ -12,11 +12,12 @@ layout(location = 0) out vec3 fragColor;
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projectionViewMatrix;
   vec3 directionToLight;
+  float deltaTime;
 
 } ubo;
 
 layout(push_constant) uniform Push {
-  mat4 transform;
+  float deltaTime;
   mat4 modelMatrix;
 } push;
 
@@ -25,7 +26,12 @@ const float AMBIENCE = 0.02f;
 
 void main() {
   //gl_Position = vec4( push.transform * position , 0.0, 1.0);
-  gl_Position = ubo.projectionViewMatrix * push.transform * vec4(position,1.0f);
+  float Amplitude = position.y;
+  float frequency = 2;
+  float waveLength = 1.5;
+
+  vec3 wavePos = vec3(position.x, Amplitude * sin((position.x + ubo.deltaTime)/waveLength) ,position.z);
+  gl_Position = ubo.projectionViewMatrix  * vec4(wavePos,1.0f);
 
   vec3 normalWorldSpace = normalize(mat3(push.modelMatrix) * normal);
 

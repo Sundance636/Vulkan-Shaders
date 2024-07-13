@@ -1,7 +1,7 @@
 #include "RenderSystem.h"
 
 struct SimplePushConstantData {
-    glm::mat4 transform{1.0f};
+    float deltaTime = 0;
     alignas(16) glm::mat4 modelMatrix;
 };
 
@@ -53,6 +53,7 @@ void RenderSystem::createPipeline(VkRenderPass renderPass) {
 
 void RenderSystem::renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objects) {
     Pipeline->bind(frameInfo.commandBuffer);
+    static float dt = 0.0f;
 
     //glm::mat4 projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getViewMat();
 
@@ -64,6 +65,7 @@ void RenderSystem::renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objec
 
 
         push.modelMatrix = obj.transform.fastMat4();
+        push.deltaTime = dt;
         //push.transform = projectionView * push.modelMatrix;
 
         //record to cmdbuffer
@@ -71,4 +73,5 @@ void RenderSystem::renderObjects(FrameInfo& frameInfo, std::vector<Entity>&Objec
         obj.model->bind(frameInfo.commandBuffer);
         obj.model->draw(frameInfo.commandBuffer);
     }
+    dt +=0.001f;
 }

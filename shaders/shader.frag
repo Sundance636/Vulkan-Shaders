@@ -6,7 +6,7 @@ layout (location = 0) in vec3 fragColor; //specifying as flat induces flat shadi
 layout (location = 0) out vec4 outColor;
 
 layout(push_constant) uniform Push {
-  mat4 transform;
+  float deltaTime;
   mat4 modelMatrix;
 } push;
 
