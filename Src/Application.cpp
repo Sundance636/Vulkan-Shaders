@@ -125,7 +125,7 @@ void Application::run() {
 
 
 void Application::loadEntities() {
-    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/flatPlane.obj");
+    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/plane.obj");
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
