@@ -129,7 +129,7 @@ void Application::loadEntities() {
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
-    loadedObject.transform.translation = {0.0f,0.0f,20.5f};
+    //loadedObject.transform.translation = {0.0f,0.0f,20.5f};
     loadedObject.transform.scale = glm::vec3{1.5f};
     entities.push_back(std::move(loadedObject));
 
