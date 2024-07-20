@@ -4,7 +4,7 @@ A 3D render engine using the Vulkan API.
 <!--![](/perspective.gif)-->
 | Wave Simulation  | High Polygon Count Model |
 |---|---|
-| <img src="Assets/SumofSines2.gif" alt="Orthographic Transform GIF" style="width:75%;"/> | <img src="Assets/HighPolyBugatti.png" alt="Perspective Transform GIF" style="width:75%;"/> |
+| <img src="Assets/SumofSines2.png" alt="Real-Time Ocean waves" style="width:75%;"/> | <img src="Assets/HighPolyBugatti.png" alt="Perspective Transform GIF" style="width:75%;"/> |
 
 
 ## Getting Started
