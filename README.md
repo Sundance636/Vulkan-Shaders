@@ -34,11 +34,11 @@ Using your package manager of choice install the required packages
 sudo pacman -S vulkan-devel cmake glfw glm glslc
 ```
 
-Once the Dependencies are installed, go to the root of the repo and execute the 'unixBuild.sh' shell script to build and run:
+Once the Dependencies are installed, go to the root of the repo and execute the `unixBuild.sh` shell script to build and run:
 ```
 ./unixBuild.sh
 ```
-You can manually Run the executable from the 'build' Directory with:
+You can manually Run the executable from the `build` Directory with:
 ```
 ./VulkanApp 
 ```
@@ -47,7 +47,35 @@ You can manually Run the executable from the 'build' Directory with:
 
 
 ### Windows
-(Coming soon, probably)
+#### Specific Dependencies (Linked to downloads)
++ [Mingw-w64](https://winlibs.com/)
++ [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)
++ [Cmake](https://cmake.org/download/)
++ [glm](https://github.com/g-truc/glm/releases/tag/1.0.1)
++ [glfw](https://www.glfw.org/)
+
+After downloading/Installing the required dependencies create a folder called `libs` in your windows root `C:/` and move the downloaded libraries to that folder for `.env.cmake` to reference, make sure the paths in that file match the location of your libraries.
+
+```
+# Set the path libraries
+set(GLFW_PATH C:/libs/glfw-3.4.bin.WIN64)
+set(GLM_PATH C:/libs/glm)
+set(VULKAN_SDK_PATH C:/VulkanSDK/1.3.283.0)
+ 
+# Set MINGW_PATH
+set(MINGW_PATH C:/libs/winlibs-x86_64-posix-seh-gcc-14.1.0-llvm-18.1.8-mingw-w64ucrt-12.0.0-r3/mingw64)
+```
+
+Make sure to add the commands `cmake` and `mingw32-make.exe` to your environment variables, one all that is done while in the root directory of the project run the `mingwBuild.bat` to make the build.
+
+```
+./mingwBuild.bat
+```
+
+This will create an executable file called `VulkanApp.exe` in the build directory that can be ran.
+
+
+
 
 ## Usage
 
