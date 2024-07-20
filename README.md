@@ -77,4 +77,7 @@ Three Body Physics System, with vectors showing the effect of the gravitational 
 **Sum of Sines Wave Approximation**
 
 Classic Sum of Sines algorithm as Described in [GPU Gems 1](https://developer.nvidia.com/gpugems/gpugems/contributors)
-<img src="Assets/SumofSines1.gif" alt="A Vector Field Updating in Realtime" style="width:75%;"/> 
+
+https://github.com/user-attachments/assets/9c5dae8f-ce8d-4e1e-9397-d8b5f47d7e1e
+
+
