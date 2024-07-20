@@ -8,7 +8,7 @@ viewPort::viewPort() {
     initWindow();
 }
 
-viewPort::viewPort( u_int32_t Width, uint32_t Height, std::string name) {
+viewPort::viewPort( uint32_t Width, uint32_t Height, std::string name) {
     this->WIDTH = Width;
     this->HEIGHT = Height;
     this->windowName = name;

@@ -1,6 +1,11 @@
 #include "pipeline.h"
 
 
+#ifndef ENGINE_DIR
+#define ENGINE_DIR "../"
+#endif
+
+
 pipeline::pipeline() {
 
 }
@@ -179,7 +184,9 @@ void pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) {
 
 std::vector<char> pipeline::readFile(const std::string& filename) {
     //ate seeks to end to get file size easily
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    std::string enginePath = ENGINE_DIR + filename;
+
+    std::ifstream file(enginePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
         throw std::runtime_error("failed to open file!");
