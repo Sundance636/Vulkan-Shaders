@@ -7,6 +7,11 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+#ifndef ENGINE_DIR
+#define ENGINE_DIR "../"
+#endif
+
+
 namespace std {
 template <>
 struct hash<Model::Vertex> {
@@ -147,7 +152,7 @@ std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescri
 
 std::unique_ptr<Model> Model::createModelFromFile(coreDevice& device, const std::string& filePath) {
     Builder builder{};
-    builder.loadModel(filePath);
+    builder.loadModel( ENGINE_DIR + filePath);
 
     std::cout << "Vertex Count: " << builder.vertices.size() << '\n';
 
@@ -160,6 +165,7 @@ void Model::Builder::loadModel(const std::string &filepath) {
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
   std::string warn, err;
+
 
   if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
     throw std::runtime_error(warn + err);
