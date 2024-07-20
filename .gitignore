@@ -1,6 +1,7 @@
 .vscode
 Src/*.o
 shaders/*.spv
+build/
 VulkanApp
 
 Models/Sora.obj
