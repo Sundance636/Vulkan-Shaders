@@ -14,9 +14,11 @@ struct SwapChainSupportDetails {
 struct QueueFamilyIndices {
   uint32_t graphicsFamily;
   uint32_t presentFamily;
+  uint32_t computeFamily;
   bool graphicsFamilyHasValue = false;
   bool presentFamilyHasValue = false;
-  bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
+  bool computeFamilyHasValue = false;
+  bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue && computeFamilyHasValue; }
 };
 
 class coreDevice {
@@ -97,6 +99,7 @@ class coreDevice {
     VkSurfaceKHR surface_;
     VkQueue graphicsQueue_;
     VkQueue presentQueue_;
+    VkQueue computeQueue_;
 
     const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};

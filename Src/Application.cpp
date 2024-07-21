@@ -64,7 +64,7 @@ void Application::run() {
         float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
         currentTime = newTime;
 
-        std::cout << frameTime * 1000 << "ms\n";//convert to miliseconds
+       // std::cout << frameTime * 1000 << "ms\n";//convert to miliseconds
 
         cameraController.moveInPlaneXZ(ApplicationWindow.getGLFWwindow(),frameTime,viewerObject);
         camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
@@ -108,7 +108,7 @@ void Application::run() {
 
 
 void Application::loadEntities() {
-    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/cat.obj");
+    std::shared_ptr<Model> appModel =  Model::createModelFromFile(appDevice,"Models/Sora2.obj");
 
     auto loadedObject = Entity::createEntity();
     loadedObject.model = appModel;
