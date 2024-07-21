@@ -34,11 +34,15 @@ class pipeline {
     private:
         coreDevice* Device;//pointer to deevice make sure to free
         VkPipeline graphicsPipeline;
+        VkPipeline computePipline;
         VkShaderModule vertShaderModule;
         VkShaderModule fragShaderModule;
+        VkShaderModule computeShaderModule;
+
 
         
         void createGraphicsPipeline(const std::string& vertShaderFile, const std::string& fragShaderFile, const PipelineConfigInfo& configInfo);
+        void createComputePipeline(const std::string &computeShaderFile, const PipelineConfigInfo& configInfo);
         void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
         
         static std::vector<char> readFile(const std::string& filename);
@@ -46,6 +50,8 @@ class pipeline {
     public:
         pipeline();
         pipeline(coreDevice& device, const std::string& vertShaderFile, const std::string& fragShaderFile, const PipelineConfigInfo& configInfo);
+        pipeline(coreDevice& device, const std::string &computeShaderFile, const PipelineConfigInfo& configInfo);
+
         ~pipeline();
 
         void bind(VkCommandBuffer commandBuffer);

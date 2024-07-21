@@ -14,6 +14,13 @@ pipeline::pipeline(coreDevice& device, const std::string& vertShaderFile, const 
     createGraphicsPipeline(vertShaderFile, fragShaderFile, configInfo);
 }
 
+pipeline::pipeline(coreDevice& device, const std::string &computeShaderFile, const PipelineConfigInfo& configInfo) {
+    this->Device = &device;//so that the objects actually get the device when initialized
+    createComputePipeline(computeShaderFile, configInfo);
+
+}
+
+
 pipeline::~pipeline() {
     vkDestroyShaderModule(Device->device(), vertShaderModule, nullptr);
     vkDestroyShaderModule(Device->device(), fragShaderModule, nullptr);
@@ -88,6 +95,38 @@ void pipeline::createGraphicsPipeline(const std::string& vertShaderFile, const s
             &graphicsPipeline) != VK_SUCCESS) {
     throw std::runtime_error("failed to create graphics pipeline");
     }
+
+}
+
+void pipeline::createComputePipeline(const std::string &computeShaderFile, const PipelineConfigInfo& configInfo) {
+    auto computeShaderCode = readFile(computeShaderFile);
+
+    createShaderModule(computeShaderCode, &computeShaderModule);
+
+    VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+    computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    computeShaderStageInfo.module = computeShaderModule;
+    computeShaderStageInfo.pName = "main";
+    computeShaderStageInfo.flags = 0;
+    computeShaderStageInfo.pNext = nullptr;
+    computeShaderStageInfo.pSpecializationInfo = nullptr;
+
+    //maybe stuff here
+
+
+
+    VkComputePipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    pipelineInfo.pNext = nullptr;
+    pipelineInfo.flags = 0;
+    pipelineInfo.stage = computeShaderStageInfo;
+    pipelineInfo.layout = configInfo.pipelineLayout;
+
+    //mayeb change later for efficiency deriving from main graphics pipeline
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.basePipelineIndex = -1;
+
 
 }
 
