@@ -11,24 +11,46 @@ pipeline::pipeline() {
 
 pipeline::pipeline(coreDevice& device, const std::string& vertShaderFile, const std::string& fragShaderFile, const PipelineConfigInfo& configInfo) {
     this->Device = &device;//so that the objects actually get the device when initialized
+    PIPELINE_TYPE = 0;
+
     createGraphicsPipeline(vertShaderFile, fragShaderFile, configInfo);
 }
 
 pipeline::pipeline(coreDevice& device, const std::string &computeShaderFile, const PipelineConfigInfo& configInfo) {
     this->Device = &device;//so that the objects actually get the device when initialized
+    PIPELINE_TYPE = 1;
+
     createComputePipeline(computeShaderFile, configInfo);
 
 }
 
 
 pipeline::~pipeline() {
-    vkDestroyShaderModule(Device->device(), vertShaderModule, nullptr);
-    vkDestroyShaderModule(Device->device(), fragShaderModule, nullptr);
-    vkDestroyPipeline(Device->device(), graphicsPipeline, nullptr);
+
+    if(PIPELINE_TYPE) {
+        //std::cout << "Destroying Compute Shader\n";
+        vkDestroyShaderModule(Device->device(), computeShaderModule, nullptr);
+        vkDestroyPipeline(Device->device(), computePipeline, nullptr);
+    } else {
+            //std::cout << "Destroying vert and frag Shaders\n";
+
+        vkDestroyShaderModule(Device->device(), vertShaderModule, nullptr);
+        vkDestroyShaderModule(Device->device(), fragShaderModule, nullptr);
+        vkDestroyPipeline(Device->device(), graphicsPipeline, nullptr);
+    }
+    
 }
 
 void pipeline::bind(VkCommandBuffer commandBuffer) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+}
+
+void pipeline::bindCompute(VkCommandBuffer commandBuffer) {
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE , computePipeline);
+}
+
+uint32_t pipeline::getPipelineType() {
+    return PIPELINE_TYPE;
 }
 
 
@@ -127,6 +149,15 @@ void pipeline::createComputePipeline(const std::string &computeShaderFile, const
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
 
+    if (vkCreateComputePipelines(
+                Device->device(),
+                VK_NULL_HANDLE,
+                1,
+                &pipelineInfo,
+                nullptr,
+                &computePipeline) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create Compute pipeline");
+        }
 
 }
 
@@ -225,7 +256,7 @@ std::vector<char> pipeline::readFile(const std::string& filename) {
     std::ifstream file(enginePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        throw std::runtime_error("failed to open file!");
+        throw std::runtime_error("failed to open shader file!");
     }
 
     size_t fileSize = (size_t) file.tellg();

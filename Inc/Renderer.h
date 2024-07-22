@@ -4,6 +4,7 @@
 #include "viewPort.h"
 #include "swapChain.h"
 #include "model.h"
+#include "OffScreenRenderer.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -30,9 +31,14 @@ class Renderer {
         std::unique_ptr<coreSwapChain> SwapChain;// = coreSwapChain(appDevice, RendererWindow.getExtent());
         std::vector<VkCommandBuffer> commandBuffers;
 
+        VkRenderPass offScreenRenderPass;
+        std::unique_ptr<OffScreenRenderer> offScreen;
+        
+
         void createCommandBuffers();
         void freeCommandBuffers();
         void recreateSwapChain();
+        void createOffscreenRenderpass();
 
     public:
         Renderer(viewPort& window, coreDevice& device);
@@ -42,6 +48,9 @@ class Renderer {
         void endFrame();
         void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+
+        void createOffscreenFramebuffer(VkDevice device, VkExtent2D extent);
+
 
         bool isFrameInProgress() const;
         VkCommandBuffer getCurrentCommandBuffer() const;

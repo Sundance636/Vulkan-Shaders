@@ -48,6 +48,8 @@ void Application::run() {
 
 
     RenderSystem renderSystem{appDevice,appRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+    ComputeSystem computeSystem{appDevice,appRenderer.getSwapChainRenderPass(),globalSetLayout->getDescriptorSetLayout()};
+
     Camera camera{};
     camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
 
@@ -98,6 +100,13 @@ void Application::run() {
             renderSystem.renderObjects(frameInfo, entities);
 
             appRenderer.endSwapChainRenderPass(commandBuffer);
+            
+            //post processing effects
+            computeSystem.computeCall(frameInfo);
+            
+            //copy anti aliased image to swap chain
+
+
             appRenderer.endFrame();
         }
 

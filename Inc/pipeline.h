@@ -34,10 +34,12 @@ class pipeline {
     private:
         coreDevice* Device;//pointer to deevice make sure to free
         VkPipeline graphicsPipeline;
-        VkPipeline computePipline;
+        VkPipeline computePipeline;
         VkShaderModule vertShaderModule;
         VkShaderModule fragShaderModule;
         VkShaderModule computeShaderModule;
+        uint32_t PIPELINE_TYPE = 0;
+
 
 
         
@@ -55,6 +57,9 @@ class pipeline {
         ~pipeline();
 
         void bind(VkCommandBuffer commandBuffer);
+        void bindCompute(VkCommandBuffer commandBuffer);
+        uint32_t getPipelineType();
+
 
         pipeline(const pipeline&) = delete;
         pipeline& operator=(const pipeline&) = delete;

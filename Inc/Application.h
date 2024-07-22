@@ -6,6 +6,7 @@
 #include "entity.h"
 #include "Renderer.h"
 #include "RenderSystem.h"
+#include "ComputeSystem.h"
 #include "Camera.h"
 #include "keyboard.h"
 #include "Buffer.h"
@@ -45,6 +46,7 @@ class Application {
     public:
         Application();
         ~Application();
+
 
         Application(const Application&) = delete;
         Application &operator=(const Application&) = delete;

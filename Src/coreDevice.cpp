@@ -524,6 +524,7 @@ void coreDevice::createImageWithInfo(
     throw std::runtime_error("failed to create image!");
   }
 
+
   VkMemoryRequirements memRequirements;
   vkGetImageMemoryRequirements(device_, image, &memRequirements);
 

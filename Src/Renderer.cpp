@@ -7,6 +7,7 @@ Renderer::Renderer( viewPort &window, coreDevice& device) : RendererWindow{windo
     currentFrameIndex = 0;
     recreateSwapChain();
     createCommandBuffers();
+    createOffscreenRenderpass();
 
 }
 
@@ -174,3 +175,11 @@ void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 
 }
+
+void Renderer::createOffscreenRenderpass() {
+    offScreen = std::make_unique<OffScreenRenderer>(appDevice, RendererWindow.getExtent());
+    std::cout << "Successfully created OffScreen renderpass\n";
+
+}
+
+
