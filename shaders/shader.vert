@@ -32,6 +32,7 @@ float rand(vec2 co);
 vec3 generateRandomValues(vec3 position);
 float hash(vec2 p);
 float hash(float n);
+vec3 fractionalBrownianMotion(float Amplitude, int wavesNum, vec3 pointPos);
 
 
 
@@ -42,6 +43,8 @@ void main() {
   float waveLength = 1.5;
   eyeline = ubo.eye;
 
+
+  //sum is the number of waves
   int sum = 9;
   float AMPLITUDE = position.y;//rand
   float FREQUENCY = 3;//rand
@@ -68,19 +71,64 @@ void main() {
     waveDx += AMPLITUDE * cos((FREQUENCY * dot(DIRECTION, position) + ubo.deltaTime* SPEED) / WAVELENGTH) * FREQUENCY / WAVELENGTH;
     waveDz += AMPLITUDE * cos((FREQUENCY * dot(DIRECTION, position) + ubo.deltaTime* SPEED) / WAVELENGTH) * FREQUENCY / WAVELENGTH;;
 
+    
   }
 
+  //fractional Brownian Motion Implementation
+  //amplitute and octives(layers/num of waves)
 
-  vec3 wavePos = vec3(position.x, Amplitude * sin((frequency * position.x + ubo.deltaTime)/waveLength) ,position.z);
+
+
+  //vec3 wavePos = vec3(position.x, Amplitude * sin((frequency * position.x + ubo.deltaTime)/waveLength) ,position.z);
+  waves = fractionalBrownianMotion(Amplitude,sum,position);
+  
   gl_Position = ubo.projectionViewMatrix * push.modelMatrix * vec4(waves,1.0f);
   //gl_Position = ubo.projectionViewMatrix * vec4(position,1.0f);
   
 
-  //need to recalculate normals before using them for lighting
+}
+
+vec3 fractionalBrownianMotion(float Amplitude, int wavesNum, vec3 pointPos) {
+
+  vec3 wavePosition = vec3(0,0,0);
+
+  float AMPLITUDE = position.y;//rand
+  float FREQUENCY = 1;//rand
+  float WAVELENGTH = 1.5;
+  vec3 DIRECTION = vec3(1,0,1);//rand
+  vec3 DIRECTION_SUM = vec3(0,0,0);//rand
+  float SPEED = 1;//5.0f * (2* M_PI/WAVELENGTH);
+  vec3 waves  = vec3(pointPos.x,0,pointPos.z);
+
+  //ssin function is our 'noise'
+  float amp = 1.0f;
+
+  waveDx =0.0f;
+  waveDz = 0.0f;
+
+  for(int i = 0; i < 30; i++) {
+     
+   WAVELENGTH = 1.35 * WAVELENGTH;
+   DIRECTION = normalize(vec3(1* hash(i+1) * hash(i+1),1* hash(i+2),1* hash(i+3)));// + vec3(rand(vec2(position.x, position.y)), 0, rand(vec2(position.x, position.y)));//rand
+   DIRECTION_SUM += DIRECTION;
+   SPEED = 4;//5.0f * (2* M_PI/WAVELENGTH);
+
+   waves.y += amp * sin((FREQUENCY * dot(DIRECTION, pointPos) + ubo.deltaTime * SPEED)/WAVELENGTH);
+    
+    waveDx += amp * cos((FREQUENCY * dot(DIRECTION, pointPos) + ubo.deltaTime* SPEED) / WAVELENGTH) * FREQUENCY / WAVELENGTH;
+    waveDz += amp * cos((FREQUENCY * dot(DIRECTION, pointPos) + ubo.deltaTime* SPEED) / WAVELENGTH) * FREQUENCY / WAVELENGTH;;
 
 
+    amp = amp * 0.5f;// (1.0/hash(i) );//rand
+    FREQUENCY = 2.0f  * FREQUENCY;//1+hash(i);//rand
+
+  }
+
+
+  return waves;
 
 }
+
 
 // Simple hash function
 float hash(float n) {
