@@ -5,6 +5,7 @@
 #include "model.h"
 #include "entity.h"
 #include "Renderer.h"
+#include "OffScreenRenderer.h"
 #include "RenderSystem.h"
 #include "ComputeSystem.h"
 #include "Camera.h"
@@ -34,11 +35,16 @@ class Application {
         uint32_t winHEIGHT = 480;
         viewPort ApplicationWindow = viewPort(winWIDTH,winHEIGHT,"Vulkan Renderer");
 
+
+        //class Wrappers for  Logical Device, and Rendering
         coreDevice appDevice = coreDevice(ApplicationWindow);
         Renderer appRenderer{ApplicationWindow, appDevice};
+        OffScreenRenderer offRenderer{ appDevice,ApplicationWindow.getExtent()};
         
+
+        //Descriptor Pool for applications instance holding descriptor sets
         std::unique_ptr<DescriptorPool> globalPool{};
-        std::vector<Entity> entities;
+        std::vector<Entity> entities;//.obj meshes
         
 
         void loadEntities();

@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <assert.h>
 
 // only every going to be dealing with one image at a time
 class OffScreenRenderer {
@@ -21,6 +22,22 @@ class OffScreenRenderer {
         ~OffScreenRenderer();
 
         VkFormat findDepthFormat();
+        VkRenderPass getoffRenderPass() const;// { return SwapChain->getRenderPass(); }
+
+        VkCommandBuffer getCurrentCommandBuffer() const;
+        VkCommandBuffer beginFrame();
+        void endFrame();
+
+
+
+        void beginOffRenderPass(VkCommandBuffer commandBuffer);
+        void endOffRenderPass(VkCommandBuffer commandBuffer);
+
+        void createCommandBuffers();
+        void freeCommandBuffers();
+
+
+
           static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 
@@ -44,6 +61,8 @@ class OffScreenRenderer {
         VkFormat offScreenDepthFormat;
         VkExtent2D offScreenExtent;
 
+
+        //Frame buffer containign image
         VkFramebuffer offScreenFramebuffer;
         VkRenderPass offScreenRenderPass;
 
@@ -66,5 +85,10 @@ class OffScreenRenderer {
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
 
+        uint32_t currentImageIndex;
+        int currentFrameIndex;
+        bool isFrameStarted;
+
+        std::vector<VkCommandBuffer> commandBuffers;
 
 };

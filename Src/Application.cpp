@@ -2,6 +2,11 @@
 
 
 //Uniform Buffer Object
+/*
+    UBO is a type of Resource in a descriptor, and a generalized
+    buffer containing abritrary info to 
+    send to the shaders
+*/
 struct  GlobalUbo {
     glm::mat4 projectionView{1.0f};
     alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f,-3.0f,1.0f});
@@ -9,6 +14,8 @@ struct  GlobalUbo {
 
 
 Application::Application() {
+    
+    //Descriptors Pools will contain many descriptor sets
     globalPool = DescriptorPool::Builder(appDevice)
     .setMaxSets(coreSwapChain::MAX_FRAMES_IN_FLIGHT)
     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,coreSwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -24,15 +31,18 @@ Application::~Application() {
 
 void Application::run() {
     std::vector<std::unique_ptr<Buffer>> uboBuffers(coreSwapChain::MAX_FRAMES_IN_FLIGHT);
-  for (uint32_t i = 0; i < uboBuffers.size(); i++) {
-    uboBuffers[i] = std::make_unique<Buffer>(
-        appDevice,
-        sizeof(GlobalUbo),
-        1,
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-    uboBuffers[i]->map();
-  }
+
+
+    //Allocating UBOs
+    for (uint32_t i = 0; i < uboBuffers.size(); i++) {
+        uboBuffers[i] = std::make_unique<Buffer>(
+            appDevice,
+            sizeof(GlobalUbo),
+            1,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        uboBuffers[i]->map();
+    }
 
     auto globalSetLayout = DescriptorSetLayout::Builder(appDevice)
     .addBinding(0,VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
@@ -47,8 +57,17 @@ void Application::run() {
     }
 
 
-    RenderSystem renderSystem{appDevice,appRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
-    ComputeSystem computeSystem{appDevice,appRenderer.getSwapChainRenderPass(),globalSetLayout->getDescriptorSetLayout()};
+
+    //Preliminaries Before Rendering
+    /*
+        1. Need to allocate memory for a framebuffer to render to
+        that matches the dimensions  and format of the swapchain
+    */
+
+    RenderSystem renderSystem{appDevice,offRenderer.getoffRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+    
+    //Give a different renderpass?
+    ComputeSystem computeSystem{appDevice,offRenderer.getoffRenderPass(),globalSetLayout->getDescriptorSetLayout()};
 
     Camera camera{};
     camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
@@ -58,6 +77,7 @@ void Application::run() {
     KeyboardMovementController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
+
 
     while(!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
@@ -76,9 +96,11 @@ void Application::run() {
         //camera.setOrthographicProjection(-aspectRatio,aspectRatio,-1,1,-1,1);
         camera.setPerspectiveProjection(glm::two_pi<float>()/8.0f,aspectRatio,0.1f,50.0f);
 
-        if(auto commandBuffer = appRenderer.beginFrame()) {
+
+        //checks if frame can be started(i.e the the command buffer done processing?)
+        if(auto commandBuffer = offRenderer.beginFrame()) {
             //prepping objects
-            int frameindex = appRenderer.getFrameIndex();
+            int frameindex = 0;
             FrameInfo frameInfo {
                 frameindex,
                 frameTime,
@@ -95,19 +117,20 @@ void Application::run() {
             uboBuffers[frameindex]->flush();
 
 
-            //render stage
-            appRenderer.beginSwapChainRenderPass(commandBuffer);
+            //Render stage (Currently Presenting to the Swapchain)
+            offRenderer.beginOffRenderPass(commandBuffer);
             renderSystem.renderObjects(frameInfo, entities);
-
-            appRenderer.endSwapChainRenderPass(commandBuffer);
+            offRenderer.endOffRenderPass(commandBuffer);
             
-            //post processing effects
-            computeSystem.computeCall(frameInfo);
+
+
+            //Post processing effects (From off screen render)
+            //computeSystem.computeCall(frameInfo);
             
-            //copy anti aliased image to swap chain
+            //copy anti aliased image to swap chain for presentation
 
 
-            appRenderer.endFrame();
+            offRenderer.endFrame();
         }
 
     }

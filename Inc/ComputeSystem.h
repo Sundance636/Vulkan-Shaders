@@ -25,6 +25,7 @@ class ComputeSystem {
 
         coreDevice& appDevice;
 
+        //Will have a compute pipeline
         std::unique_ptr<pipeline> Pipeline;
         VkPipelineLayout pipelineLayout;
 
