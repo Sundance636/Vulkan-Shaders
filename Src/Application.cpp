@@ -66,8 +66,6 @@ void Application::run() {
 
     RenderSystem renderSystem{appDevice,offRenderer.getoffRenderPass(), globalSetLayout->getDescriptorSetLayout()};
     
-    //Give a different renderpass?
-    ComputeSystem computeSystem{appDevice,offRenderer.getoffRenderPass(),globalSetLayout->getDescriptorSetLayout()};
 
     Camera camera{};
     camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f,0.0f,1.0f});
@@ -77,7 +75,59 @@ void Application::run() {
     KeyboardMovementController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
+    
+    VkDescriptorPool globalPool2;
+    VkDescriptorSetLayout glolayout;
 
+    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    uboLayoutBinding.descriptorCount = 1;
+
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(appDevice.device(), &layoutInfo, nullptr, &glolayout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
+
+
+    //Give a different renderpass?
+    ComputeSystem computeSystem{appDevice,offRenderer.getoffRenderPass(),glolayout};
+
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    poolSize.descriptorCount = static_cast<uint32_t>(1);
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+    poolInfo.maxSets = static_cast<uint32_t>(1);
+
+
+
+    if (vkCreateDescriptorPool(appDevice.device(), &poolInfo, nullptr, &globalPool2) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+
+    VkDescriptorSetAllocateInfo compDescInfo{};
+    compDescInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    compDescInfo.pNext = nullptr;
+    compDescInfo.descriptorPool = globalPool2;
+    compDescInfo.descriptorSetCount = 1;
+    compDescInfo.pSetLayouts = &glolayout; 
+
+
+
+
+    VkDescriptorSet computeSet;
+    vkAllocateDescriptorSets( appDevice.device(), &compDescInfo,&computeSet);
 
     while(!ApplicationWindow.shouldClose()) {
         glfwPollEvents();
@@ -95,6 +145,7 @@ void Application::run() {
 
         //camera.setOrthographicProjection(-aspectRatio,aspectRatio,-1,1,-1,1);
         camera.setPerspectiveProjection(glm::two_pi<float>()/8.0f,aspectRatio,0.1f,50.0f);
+
 
 
         //checks if frame can be started(i.e the the command buffer done processing?)
@@ -123,11 +174,18 @@ void Application::run() {
             offRenderer.endOffRenderPass(commandBuffer);
             
 
+            //transition the imagelayout so its readable by compute shader
+            //perform layout transitions using image memory barriers
+            offRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,VK_IMAGE_LAYOUT_GENERAL);
+
+
+            //be sure to create and bind the correct descriptors (offscreen image resource)
+            offRenderer.bindDescriptors(computeSet);
 
             //Post processing effects (From off screen render)
-            //computeSystem.computeCall(frameInfo);
+            computeSystem.computeCall(frameInfo,computeSet);
             
-            //copy anti aliased image to swap chain for presentation
+            //copy anti aliased image to swap chain for presentation TODO
 
 
             offRenderer.endFrame();

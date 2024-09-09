@@ -55,10 +55,10 @@ void ComputeSystem::createPipeline(VkRenderPass renderPass) {
 
 }
 
-void ComputeSystem::computeCall(FrameInfo& frameInfo) {
+void ComputeSystem::computeCall(FrameInfo& frameInfo,VkDescriptorSet& computeDesc) {
     Pipeline->bindCompute(frameInfo.commandBuffer);
     
-    vkCmdBindDescriptorSets(frameInfo.commandBuffer,VK_PIPELINE_BIND_POINT_COMPUTE ,pipelineLayout,0,1,&frameInfo.globalDescriptorSet,0,nullptr);
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer,VK_PIPELINE_BIND_POINT_COMPUTE ,pipelineLayout,0,1,&computeDesc,0,nullptr);
     //vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(SimplePushConstantData), &push);
 
     vkCmdDispatch(frameInfo.commandBuffer,64,1,1);

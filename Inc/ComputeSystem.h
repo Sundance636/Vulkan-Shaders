@@ -37,7 +37,7 @@ class ComputeSystem {
         ComputeSystem(coreDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~ComputeSystem();
 
-        void computeCall(FrameInfo& frameInfo);
+        void computeCall(FrameInfo& frameInfo,VkDescriptorSet& computeDesc);
 
 
         ComputeSystem(const ComputeSystem&) = delete;

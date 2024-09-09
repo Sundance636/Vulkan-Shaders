@@ -59,6 +59,9 @@ class Renderer {
         VkRenderPass getSwapChainRenderPass() const;// { return SwapChain->getRenderPass(); }
         float getAspectRatio() const;
 
+        void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout);
+
+
         Renderer(const Renderer&) = delete;
         Renderer &operator=(const Renderer&) = delete;
         

@@ -30,12 +30,14 @@ class OffScreenRenderer {
 
 
 
-        void beginOffRenderPass(VkCommandBuffer commandBuffer);
-        void endOffRenderPass(VkCommandBuffer commandBuffer);
+        void beginOffRenderPass(VkCommandBuffer& commandBuffer);
+        void endOffRenderPass(VkCommandBuffer& commandBuffer);
 
         void createCommandBuffers();
         void freeCommandBuffers();
 
+        void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout);
+        void bindDescriptors(VkDescriptorSet& computeDesc);
 
 
           static constexpr int MAX_FRAMES_IN_FLIGHT = 2;

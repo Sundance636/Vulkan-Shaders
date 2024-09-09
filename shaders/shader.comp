@@ -1,10 +1,6 @@
 #version 450
 
-layout(set = 0, binding = 0) uniform GlobalUbo {
-  mat4 projectionViewMatrix;
-  vec3 directionToLight;
-
-} ubo;
+layout(set = 0, binding = 0, rgba8) uniform image2D framebuffer;
 
 layout(push_constant) uniform Push {
   mat4 transform;
@@ -14,4 +10,16 @@ layout(push_constant) uniform Push {
 
 void main() {
     float num = 3.0 + 3.0;
+
+        // Get the coordinates of the current work item
+    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
+    
+    // Read a pixel value (optional, only if reading is necessary)
+    vec4 pixelValue = imageLoad(framebuffer, pixelCoord);
+    
+    // Perform some modification to the pixel value (this is an example)
+    vec4 newPixelValue = vec4(1.0 - pixelValue.rgb, pixelValue.a); // Invert colors
+
+    // Write the new pixel value back to the image
+    imageStore(framebuffer, pixelCoord, newPixelValue);
 }
