@@ -4,7 +4,7 @@
 #include "viewPort.h"
 #include "swapChain.h"
 #include "model.h"
-#include "OffScreenRenderer.h"
+//#include "OffScreenRenderer.h"
 
 //forces radians across all platforms
 #define GLM_FORCE_RADIANS
@@ -32,7 +32,7 @@ class Renderer {
         std::vector<VkCommandBuffer> commandBuffers;
 
         VkRenderPass offScreenRenderPass;
-        std::unique_ptr<OffScreenRenderer> offScreen;
+       // std::unique_ptr<OffScreenRenderer> offScreen;
         
 
         void createCommandBuffers();
@@ -61,6 +61,11 @@ class Renderer {
 
         void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout);
 
+        VkImage getSwapChainImage(uint32_t index);
+        
+        VkSwapchainKHR getSwapChain();
+        void submitBuffers(VkCommandBuffer& commandBuffers,uint32_t index);
+        
 
         Renderer(const Renderer&) = delete;
         Renderer &operator=(const Renderer&) = delete;

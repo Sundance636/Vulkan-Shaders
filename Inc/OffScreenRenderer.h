@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coreDevice.h"
+#include "Renderer.h"
 
 // vulkan headers
 #include <vulkan/vulkan.h>
@@ -38,6 +39,8 @@ class OffScreenRenderer {
 
         void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout);
         void bindDescriptors(VkDescriptorSet& computeDesc);
+
+        void copyImgtoSwapchain(VkCommandBuffer& commandBuffer, Renderer& appRenderer,uint32_t index);
 
 
           static constexpr int MAX_FRAMES_IN_FLIGHT = 2;

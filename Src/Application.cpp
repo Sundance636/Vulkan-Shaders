@@ -124,6 +124,16 @@ void Application::run() {
     compDescInfo.pSetLayouts = &glolayout; 
 
 
+    VkSemaphore waitSemaphore;
+    VkSemaphore FinishedSemaphore;
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    vkCreateSemaphore(appDevice.device(), &semaphoreInfo, nullptr, &waitSemaphore);
+    vkCreateSemaphore(appDevice.device(), &semaphoreInfo, nullptr, &FinishedSemaphore);
+    
+    VkSemaphore signalSemaphores[] = {FinishedSemaphore};
+    VkSwapchainKHR swapChains[] = {appRenderer.getSwapChain()};
 
 
     VkDescriptorSet computeSet;
@@ -185,13 +195,57 @@ void Application::run() {
             //Post processing effects (From off screen render)
             computeSystem.computeCall(frameInfo,computeSet);
             
+            
             //copy anti aliased image to swap chain for presentation TODO
+            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_UNDEFINED ,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+
+            //copying
+            offRenderer.copyImgtoSwapchain(commandBuffer,appRenderer, frameindex);
+
+            //transition copied swapchain image
+            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+                       offRenderer.endFrame();
+
+            //present to swapchain
+            //appRenderer.submitBuffers(commandBuffer,frameindex);
+
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 
-            offRenderer.endFrame();
+            VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+            submitInfo.waitSemaphoreCount = 1;
+            submitInfo.pWaitSemaphores = &waitSemaphore;
+            submitInfo.pWaitDstStageMask = waitStages;
+
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+
+            submitInfo.signalSemaphoreCount = 1;
+            submitInfo.pSignalSemaphores = signalSemaphores;
+            
+
+            vkQueueSubmit(appDevice.graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+
+            VkPresentInfoKHR presentInfo = {};
+            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+            presentInfo.waitSemaphoreCount = 1;
+            presentInfo.pWaitSemaphores = signalSemaphores;
+
+            presentInfo.swapchainCount = 1;
+            presentInfo.pSwapchains = swapChains;
+            uint32_t index = frameindex;
+            presentInfo.pImageIndices = &index;
+            
+            vkQueuePresentKHR(appDevice.presentQueue(), &presentInfo);
+
+
         }
 
     }
+
     
     vkDeviceWaitIdle(appDevice.device());
 }

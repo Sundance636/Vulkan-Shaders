@@ -7,7 +7,7 @@ Renderer::Renderer( viewPort &window, coreDevice& device) : RendererWindow{windo
     currentFrameIndex = 0;
     recreateSwapChain();
     createCommandBuffers();
-    createOffscreenRenderpass();
+    //createOffscreenRenderpass();
 
 }
 
@@ -175,14 +175,15 @@ void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 
 }
+/*
 
 void Renderer::createOffscreenRenderpass() {
     offScreen = std::make_unique<OffScreenRenderer>(appDevice, RendererWindow.getExtent());
     std::cout << "Successfully created OffScreen renderpass\n";
 
-}
+}*/
 
-/*
+
 void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout) {
 
 
@@ -192,7 +193,7 @@ void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldL
     memoryBarrier.newLayout = newLayout;
     memoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     memoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    memoryBarrier.image = offScreenImage;
+    memoryBarrier.image = SwapChain->getSwapChainImage(0);//CHANGE to match frames in flight
     memoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     memoryBarrier.subresourceRange.baseMipLevel = 0;
     memoryBarrier.subresourceRange.levelCount = 1;
@@ -210,9 +211,23 @@ void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldL
     }
 
 
-    vkCmdPipelineBarrier(cmdBuffer,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,0,nullptr,0,nullptr, 1,&memoryBarrier);
+    vkCmdPipelineBarrier(cmdBuffer,VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0,0,nullptr,0,nullptr, 1,&memoryBarrier);
 
 
 }
 
-*/
+VkImage Renderer::getSwapChainImage(uint32_t index) {
+    return SwapChain->getSwapChainImage(index);
+}
+
+VkSwapchainKHR Renderer::getSwapChain() {
+    return SwapChain->getSwapChain();
+}
+
+
+
+void Renderer::submitBuffers(VkCommandBuffer& commandBuffers,uint32_t index) {
+    SwapChain->submitCommandBuffers(&commandBuffers,&index);
+}
+
+

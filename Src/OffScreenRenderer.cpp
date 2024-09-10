@@ -62,7 +62,7 @@ void OffScreenRenderer::createOffScreenRenderer() {
     image.tiling = VK_IMAGE_TILING_OPTIMAL;
 
     // We will sample directly from the color attachment
-    image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+    image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT ;
 
         device.createImageWithInfo(
         image,
@@ -404,4 +404,33 @@ void OffScreenRenderer::bindDescriptors(VkDescriptorSet& computeDesc) {
 
     vkUpdateDescriptorSets(device.device(), 1, &descriptorWrite, 0, nullptr);
 
+}
+
+
+void OffScreenRenderer::copyImgtoSwapchain(VkCommandBuffer& commandBuffer, Renderer& apprenderer,uint32_t index) {
+
+    VkImageCopy copyRegion = {};
+    copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.srcSubresource.mipLevel = 0;
+    copyRegion.srcSubresource.baseArrayLayer = 0;
+    copyRegion.srcSubresource.layerCount = 1;
+    copyRegion.srcOffset = {0, 0, 0};
+
+
+    copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.dstSubresource.mipLevel = 0;
+    copyRegion.dstSubresource.baseArrayLayer = 0;
+    copyRegion.dstSubresource.layerCount = 1;
+    copyRegion.dstOffset = {0, 0, 0};
+
+    copyRegion.extent.width = offScreenExtent.width;
+    copyRegion.extent.height = offScreenExtent.height;
+    copyRegion.extent.depth = 1;
+
+    vkCmdCopyImage(
+        commandBuffer,
+        offScreenImage, VK_IMAGE_LAYOUT_GENERAL,
+        apprenderer.getSwapChainImage(index), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1, &copyRegion
+    );
 }
