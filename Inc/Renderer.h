@@ -59,7 +59,7 @@ class Renderer {
         VkRenderPass getSwapChainRenderPass() const;// { return SwapChain->getRenderPass(); }
         float getAspectRatio() const;
 
-        void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout);
+        void transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout,uint32_t index);
 
         VkImage getSwapChainImage(uint32_t index);
         

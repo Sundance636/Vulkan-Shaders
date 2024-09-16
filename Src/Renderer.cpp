@@ -184,7 +184,7 @@ void Renderer::createOffscreenRenderpass() {
 }*/
 
 
-void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout) {
+void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldLayout,VkImageLayout newLayout,uint32_t index) {
 
 
     VkImageMemoryBarrier memoryBarrier{};
@@ -193,7 +193,7 @@ void Renderer::transitionImgLayout(VkCommandBuffer& cmdBuffer,VkImageLayout oldL
     memoryBarrier.newLayout = newLayout;
     memoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     memoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    memoryBarrier.image = SwapChain->getSwapChainImage(0);//CHANGE to match frames in flight
+    memoryBarrier.image = SwapChain->getSwapChainImage(index);//CHANGE to match frames in flight
     memoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     memoryBarrier.subresourceRange.baseMipLevel = 0;
     memoryBarrier.subresourceRange.levelCount = 1;

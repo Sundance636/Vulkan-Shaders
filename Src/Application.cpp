@@ -126,14 +126,23 @@ void Application::run() {
 
     VkSemaphore waitSemaphore;
     VkSemaphore FinishedSemaphore;
+    VkSemaphore imageAvailableSemaphore;
+
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
     vkCreateSemaphore(appDevice.device(), &semaphoreInfo, nullptr, &waitSemaphore);
     vkCreateSemaphore(appDevice.device(), &semaphoreInfo, nullptr, &FinishedSemaphore);
+    vkCreateSemaphore(appDevice.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+
     
     VkSemaphore signalSemaphores[] = {FinishedSemaphore};
     VkSwapchainKHR swapChains[] = {appRenderer.getSwapChain()};
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    VkFence commandBufferFence;
+    vkCreateFence(appDevice.device(), &fenceInfo, nullptr, &commandBufferFence);
 
 
     VkDescriptorSet computeSet;
@@ -162,21 +171,31 @@ void Application::run() {
         if(auto commandBuffer = offRenderer.beginFrame()) {
             //prepping objects
             int frameindex = 0;
+            uint32_t index = frameindex;
+
+
+            //FIX: THIS LINE CAUSES CRASH
+            vkAcquireNextImageKHR(appDevice.device(), swapChains[0], UINT64_MAX, waitSemaphore, VK_NULL_HANDLE, &index);
+            uint32_t aquiredIndex = index;
+            index = index%coreSwapChain::MAX_FRAMES_IN_FLIGHT;
+            //std::cout << "aquire index: " << index << "\n";
+
             FrameInfo frameInfo {
-                frameindex,
+                aquiredIndex,
                 frameTime,
                 commandBuffer,
                 camera,
-                globalDescriptorSets[frameindex]
+                globalDescriptorSets[index]
             };
 
             GlobalUbo ubo{};
             ubo.lightDirection = viewerObject.transform.translation;
 
             ubo.projectionView = camera.getProjection() * camera.getViewMat();
-            uboBuffers[frameindex]->writeToBuffer(&ubo);
-            uboBuffers[frameindex]->flush();
+            uboBuffers[index]->writeToBuffer(&ubo);
+            uboBuffers[index]->flush();
 
+            offRenderer.transitionImgLayout(commandBuffer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
             //Render stage (Currently Presenting to the Swapchain)
             offRenderer.beginOffRenderPass(commandBuffer);
@@ -197,18 +216,19 @@ void Application::run() {
             
             
             //copy anti aliased image to swap chain for presentation TODO
-            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_UNDEFINED ,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_UNDEFINED ,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, aquiredIndex );
 
             //copying
-            offRenderer.copyImgtoSwapchain(commandBuffer,appRenderer, frameindex);
+            offRenderer.copyImgtoSwapchain(commandBuffer,appRenderer, aquiredIndex);
 
             //transition copied swapchain image
-            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            appRenderer.transitionImgLayout(commandBuffer,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aquiredIndex);
 
-                       offRenderer.endFrame();
+            offRenderer.endFrame();
 
             //present to swapchain
             //appRenderer.submitBuffers(commandBuffer,frameindex);
+
 
             VkSubmitInfo submitInfo = {};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -224,9 +244,14 @@ void Application::run() {
 
             submitInfo.signalSemaphoreCount = 1;
             submitInfo.pSignalSemaphores = signalSemaphores;
+
+
             
 
-            vkQueueSubmit(appDevice.graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+            vkQueueSubmit(appDevice.graphicsQueue(), 1, &submitInfo, commandBufferFence);
+
+            vkWaitForFences(appDevice.device(), 1, &commandBufferFence, VK_TRUE, UINT64_MAX);
+            vkResetFences(appDevice.device(), 1, &commandBufferFence);
 
             VkPresentInfoKHR presentInfo = {};
             presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -236,9 +261,10 @@ void Application::run() {
 
             presentInfo.swapchainCount = 1;
             presentInfo.pSwapchains = swapChains;
-            uint32_t index = frameindex;
-            presentInfo.pImageIndices = &index;
-            
+            presentInfo.pImageIndices = &aquiredIndex;
+
+
+            //std::cout << "SFAS\n";
             vkQueuePresentKHR(appDevice.presentQueue(), &presentInfo);
 
 
